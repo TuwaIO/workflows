@@ -1,7 +1,7 @@
 # TUWA Workflows & Community Standards
 
 <div align="center">
-  <img src="./preview/tuwa_preview.gif" alt="TUWA Preview Demo" width="100%" max-width="800px" />
+  <img src="https://raw.githubusercontent.com/TuwaIO/workflows/main/preview/tuwa_preview.gif" alt="TUWA Preview Demo" width="100%" max-width="800px" />
 </div>
 
 ## About This Repository
@@ -14,9 +14,8 @@ By using the reusable components from this repository, we follow the **DRY (Don'
 
 ## What's Inside?
 
-* **`.github/ISSUE_TEMPLATE/`**: Standardized templates for bug reports and feature requests. *(Note: These are applied organization-wide via a separate `.github` repository).*
 * **`.github/workflows/`**: A collection of reusable GitHub Actions workflows for common tasks.
-* **`CONTRIBUTING.md` & `CODE_OF_CONDUCT.md`**: Centralized community guidelines.
+* **`CONTRIBUTING.md`**: Centralized community guidelines.
 * **`preview/`**: Shared assets like logos and diagrams that can be referenced from other repositories.
 
 ---
