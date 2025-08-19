@@ -72,7 +72,7 @@ The general workflow, however, is consistent:
     ```bash
     feat(ui): add retry button to TrackingTxModal
     ```
-    Common types include: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`.
+    Common types include: `feat`, `fix`, `docs`, `chore`.
 
 5.  **Push your branch** to your fork on GitHub:
     ```bash
