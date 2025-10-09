@@ -16,12 +16,6 @@ You can support us with a monthly subscription on Patreon. This is a great way t
 
 - **➡️ [Become a Patron](https://www.patreon.com/TUWAIO)**
 
-## Open Collective ✨
-
-Open Collective is a platform that allows us to manage and sustain the crucial resources needed for open-source development. By supporting us here, your contributions directly fuel the core efforts and maintain the health of our projects.
-
-- **➡️ [Support TUWA on Open Collective](https://opencollective.com/tuwa)**
-
 ### Cryptocurrency Donations 🪙
 
 We also welcome direct donations in cryptocurrency.
