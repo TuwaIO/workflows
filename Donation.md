@@ -1,6 +1,6 @@
 ## Support TUWA team 🤝
 
-Thank you for considering supporting the development of the **Pulsar Core**, **Satellite Connect** and **Nova UI Kit**!
+Thank you for considering supporting the development of the **Pulsar Utils**, **Pulsar Core**, **Satellite Connect** and **Nova UI Kit**!
 
 Our mission is to provide high-quality, open-source tools to help developers build amazing Web3 applications. Your support allows us to dedicate more time and resources to development, maintenance, and community support. Every contribution, no matter the size, makes a huge difference.
 
