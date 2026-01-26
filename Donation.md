@@ -1,31 +1,64 @@
-## Support TUWA team 🤝
+## Support the TUWA Ecosystem 🤝
 
-Thank you for considering supporting the development of the **Orbit Utils**, **Pulsar Core**, **Satellite Connect** and **Nova UI Kit**!
+Thank you for considering supporting the development of **Orbit**, **Pulsar**, **Satellite**, and **Nova UI Kit**!
 
-Our mission is to provide high-quality, open-source tools to help developers build amazing Web3 applications. Your support allows us to dedicate more time and resources to development, maintenance, and community support. Every contribution, no matter the size, makes a huge difference.
+Our mission is to build the "Pure Web3" infrastructure—tools that guarantee sovereignty, self-custody, and technical honesty. We are creating an ecosystem where developers don't have to choose between convenience and control.
+
+Your support allows us to remain independent, dedicate more time to maintaining these open-source libraries, and accelerate the roadmap towards a fully decentralized future. Every contribution, no matter the size, fuels this revolution.
 
 ---
 
 ## How You Can Support Us 🛠️
 
-We offer a couple of ways to support the project. Choose the one that is most convenient for you.
+We offer a couple of ways to support the project. Choose the one that fits you best.
 
-### Patreon 💖
+### 💖 Patreon (Monthly Support)
 
-You can support us with a monthly subscription on Patreon. This is a great way to contribute to the ongoing development and maintenance of the libraries.
+Join our inner circle. This is the best way to contribute to the long-term stability of the TUWA ecosystem.
 
-- **➡️ [Become a Patron](https://www.patreon.com/TUWAIO)**
-
-### Cryptocurrency Donations 🪙
-
-We also welcome direct donations in cryptocurrency.
-
-#### ETH / ERC20 Tokens ⛽
-
-You can send ETH or any ERC20 token (like USDC, USDT, DAI) on the Ethereum, Polygon, Optimism, Arbitrum, Base, or other EVM-compatible networks to the following address:
-
-- **Address:** `0xAE1C49A1366411E6cD14b564594C1ef27380308c`
+➡️ [Become a Patron on Patreon](https://www.patreon.com/TUWAIO)
 
 ---
 
-Thank you again for your support. It truly means the world to us! 🚀
+### 🪙 Cryptocurrency Donations
+
+We gratefully accept direct contributions across major networks.
+
+#### 🔷 EVM Networks (Ethereum, Base, Arbitrum, Optimism, Polygon, BSC)
+
+*Accepted tokens: ETH, USDC, USDT, DAI, and other ERC-20 tokens.*
+
+```bash
+0xB82D5b3056212434ff2936348aF4fA7491950189
+
+```
+
+#### 🟣 Solana (SVM)
+
+*Accepted tokens: SOL, USDC, USDT (SPL).*
+
+```bash
+BkqTKFavDvtgsw5KrQWKgPiwYxSPQCtwY6ow3X3UF9UQ
+
+```
+
+#### 🔴 Tron (TRC-20)
+
+*Best for USDT transfers.*
+
+```bash
+TQfyMQVovRmR4mgZyxqzkTuQHkH7ACurWK
+
+```
+
+#### 💎 TON Network
+
+*The Open Network.*
+
+```bash
+UQC7LdKT59QoDX1UGLJgDDy0Y6jV-elHYsPCe_iYvJFxCTMd
+```
+
+---
+
+**Thank you for building the future with us. It truly means the world! 🚀**
