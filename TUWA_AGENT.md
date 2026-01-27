@@ -100,11 +100,6 @@ Configure your global styles to import Nova's design system.
 /* 3. Import Tailwind CSS */
 @import 'tailwindcss';
 
-/* 4. Custom Theme Extensions */
-@theme {
-  --animate-float: float var(--tw-duration, 4000ms) var(--tw-ease, ease-in-out) infinite;
-}
-
 ```
 
 ### Step 3: Configure Wagmi (EVM Layer)
@@ -320,25 +315,88 @@ Nova uses **CSS Variables** integrated with Tailwind. You can override them glob
 ```css
 /* src/styles/app.css */
 :root {
-  /* Brand Identity */
-  --tuwa-color-primary: #6366f1; /* Indigo-500 */
-  --tuwa-color-primary-hover: #4f46e5; /* Indigo-600 */
+  --tuwa-success-bg: theme('colors.green.100');
+  --tuwa-success-text: theme('colors.green.700');
+  --tuwa-success-icon: theme('colors.green.500');
 
-  /* Semantic Status Colors */
-  --tuwa-success-bg: #d1fae5; /* Emerald-100 */
-  --tuwa-success-text: #065f46; /* Emerald-800 */
-  --tuwa-error-bg: #fee2e2; /* Red-100 */
-  --tuwa-error-text: #991b1b; /* Red-800 */
+  --tuwa-error-bg: theme('colors.red.100');
+  --tuwa-error-text: theme('colors.red.700');
+  --tuwa-error-icon: theme('colors.red.500');
 
-  /* UI Gradients */
-  --tuwa-gradient-primary: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  --tuwa-pending-bg: theme('colors.yellow.100');
+  --tuwa-pending-text: theme('colors.yellow.800');
+  --tuwa-pending-icon: theme('colors.yellow.600');
+
+  --tuwa-info-bg: theme('colors.gray.100');
+  --tuwa-info-text: theme('colors.gray.600');
+  --tuwa-info-icon: theme('colors.gray.500');
+
+  --tuwa-text-primary: theme('colors.gray.900');
+  --tuwa-text-secondary: theme('colors.gray.500');
+  --tuwa-text-tertiary: theme('colors.gray.400');
+  --tuwa-text-accent: theme('colors.blue.600');
+  --tuwa-text-on-accent: theme('colors.white');
+
+  --tuwa-bg-primary: theme('colors.white');
+  --tuwa-bg-secondary: theme('colors.gray.50');
+  --tuwa-bg-muted: theme('colors.gray.100');
+
+  --tuwa-border-primary: theme('colors.gray.200');
+  --tuwa-border-secondary: theme('colors.gray.100');
+
+  --tuwa-button-gradient-from: theme('colors.blue.600');
+  --tuwa-button-gradient-to: theme('colors.purple.600');
+
+  --tuwa-button-gradient-from-hover: theme('colors.blue.700');
+  --tuwa-button-gradient-to-hover: theme('colors.purple.700');
+
+  --tuwa-standart-button-bg: theme('colors.gray.100');
+  --tuwa-standart-button-hover: theme('colors.gray.200');
+
+  --tuwa-testnet-icons: #c4bfb8;
 }
 
 /* Dark Mode Overrides */
 .dark {
-  --tuwa-color-primary: #818cf8; /* Indigo-400 */
-  --tuwa-success-bg: #064e3b; /* Emerald-900 */
-  --tuwa-success-text: #d1fae5; /* Emerald-100 */
+  --tuwa-success-bg: theme('colors.green.900');
+  --tuwa-success-text: theme('colors.green.300');
+  --tuwa-success-icon: theme('colors.green.400');
+
+  --tuwa-error-bg: theme('colors.red.900');
+  --tuwa-error-text: theme('colors.red.300');
+  --tuwa-error-icon: theme('colors.red.400');
+
+  --tuwa-pending-bg: theme('colors.yellow.900');
+  --tuwa-pending-text: theme('colors.yellow.300');
+  --tuwa-pending-icon: theme('colors.yellow.400');
+
+  --tuwa-info-bg: theme('colors.gray.700');
+  --tuwa-info-text: theme('colors.gray.300');
+  --tuwa-info-icon: theme('colors.gray.400');
+
+  --tuwa-text-primary: theme('colors.gray.50');
+  --tuwa-text-secondary: theme('colors.gray.400');
+  --tuwa-text-tertiary: theme('colors.gray.500');
+  --tuwa-text-accent: theme('colors.blue.400');
+  --tuwa-text-on-accent: theme('colors.white');
+
+  --tuwa-bg-primary: theme('colors.gray.900');
+  --tuwa-bg-secondary: theme('colors.gray.800');
+  --tuwa-bg-muted: theme('colors.gray.700');
+
+  --tuwa-border-primary: theme('colors.gray.700');
+  --tuwa-border-secondary: theme('colors.gray.800');
+
+  --tuwa-button-gradient-from: theme('colors.blue.500');
+  --tuwa-button-gradient-to: theme('colors.purple.500');
+
+  --tuwa-button-gradient-from-hover: theme('colors.blue.600');
+  --tuwa-button-gradient-to-hover: theme('colors.purple.600');
+
+  --tuwa-standart-button-bg: theme('colors.gray.700');
+  --tuwa-standart-button-hover: theme('colors.gray.800');
+
+  --tuwa-testnet-icons: #c4bfb8;
 }
 
 ```
