@@ -1,6 +1,6 @@
 ## Support the TUWA Ecosystem 🤝
 
-Thank you for considering supporting the development of **Orbit**, **Pulsar**, **Satellite**, and **Nova UI Kit**!
+Thank you for considering supporting the development of **Orbit**, **Pulsar**, **Satellite**, **Nova UI Kit**, **Quasar**, and **SDK**!
 
 Our mission is to build the "Pure Web3" infrastructure—tools that guarantee sovereignty, self-custody, and technical honesty. We are creating an ecosystem where developers don't have to choose between convenience and control.
 
@@ -9,16 +9,6 @@ Your support allows us to remain independent, dedicate more time to maintaining 
 ---
 
 ## How You Can Support Us 🛠️
-
-We offer a couple of ways to support the project. Choose the one that fits you best.
-
-### 💖 Patreon (Monthly Support)
-
-Join our inner circle. This is the best way to contribute to the long-term stability of the TUWA ecosystem.
-
-➡️ [Become a Patron on Patreon](https://www.patreon.com/TUWAIO)
-
----
 
 ### 🪙 Cryptocurrency Donations
 
@@ -30,7 +20,6 @@ We gratefully accept direct contributions across major networks.
 
 ```bash
 0xB82D5b3056212434ff2936348aF4fA7491950189
-
 ```
 
 #### 🟣 Solana (SVM)
@@ -39,7 +28,6 @@ We gratefully accept direct contributions across major networks.
 
 ```bash
 BkqTKFavDvtgsw5KrQWKgPiwYxSPQCtwY6ow3X3UF9UQ
-
 ```
 
 #### 🔴 Tron (TRC-20)
@@ -48,7 +36,6 @@ BkqTKFavDvtgsw5KrQWKgPiwYxSPQCtwY6ow3X3UF9UQ
 
 ```bash
 TQfyMQVovRmR4mgZyxqzkTuQHkH7ACurWK
-
 ```
 
 #### 💎 TON Network
