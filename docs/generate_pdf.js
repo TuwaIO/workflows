@@ -3,7 +3,12 @@ import { marked } from 'marked';
 import fs from 'fs';
 import path from 'path';
 
-const files = ['privacy', 'terms', 'cookie'];
+const files = [
+  { name: 'privacy', out: 'privacy' },
+  { name: 'terms', out: 'terms' },
+  { name: 'cookie', out: 'cookie' },
+  { name: 'cookie', out: 'сookie' } // Cyrillic 'с' for legacy URL support
+];
 
 const CSS = `
   @import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;600;700&display=swap');
@@ -69,8 +74,8 @@ async function generate() {
   
   const page = await browser.newPage();
 
-  for (const name of files) {
-    const md = fs.readFileSync(path.join(process.cwd(), name + '.md'), 'utf8');
+  for (const file of files) {
+    const md = fs.readFileSync(path.join(process.cwd(), file.name + '.md'), 'utf8');
     const svgLogo = fs.readFileSync(path.join(process.cwd(), '../preview/logo_v1.svg'), 'utf8');
     const htmlContent = marked.parse(md);
     
@@ -95,12 +100,12 @@ async function generate() {
     await page.setContent(html);
     await page.evaluateHandle('document.fonts.ready');
     await page.pdf({
-      path: path.join(process.cwd(), name + '.pdf'),
+      path: path.join(process.cwd(), file.out + '.pdf'),
       format: 'A4',
       printBackground: true,
       margin: { top: '20mm', right: '20mm', bottom: '20mm', left: '20mm' }
     });
-    console.log('Generated ' + name + '.pdf');
+    console.log('Generated ' + file.out + '.pdf');
   }
 
   await browser.close();
