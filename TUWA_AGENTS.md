@@ -42,7 +42,13 @@ TUWA is a headless-first, modular Web3 stack. We strictly separate **Logic** fro
 │  • satellite-evm: Wagmi/Viem bridge                         │
 │  • satellite-solana: Gill/Wallet Standard bridge            │
 │  • satellite-react: React provider & hooks                  │
-│  • satellite-siwe-next-auth: SIWE authentication            │
+└─────────────────────────────┬───────────────────────────────┘
+                              │
+┌─────────────────────────────▼───────────────────────────────┐
+│       @tuwaio/siwx-*  (CAIP-122 Auth Layer)                 │
+│  • siwx-core: Builder, parser, zero-deps engine             │
+│  • siwx-evm / siwx-solana: Chain-specific signers           │
+│  • siwx-react / siwx-server: Hooks and backend utilities    │
 └─────────────────────────────┬───────────────────────────────┘
                               │
 ┌─────────────────────────────▼───────────────────────────────┐
@@ -64,6 +70,7 @@ TUWA is a headless-first, modular Web3 stack. We strictly separate **Logic** fro
 | Layer | Package Scope | Role | When to use? |
 | --- | --- | --- | --- |
 | **Foundation** | `@tuwaio/orbit-*` | *The Toolbox* | Low-level helpers, formatters, chain adapters |
+| **Authentication** | `@tuwaio/siwx-*` | *The Auth Engine* | CAIP-122 chain-agnostic sign-in messages |
 | **Connectivity** | `@tuwaio/satellite-*` | *The Connector* | Wallet connections (EVM/Solana), session management |
 | **State Engine** | `@tuwaio/pulsar-*` | *The Tracker* | Transaction lifecycle tracking with persistence |
 | **Visual Layer** | `@tuwaio/nova-*` | *The UI Kit* | Pre-built React components (Modals, Toasts) |
@@ -72,6 +79,7 @@ TUWA is a headless-first, modular Web3 stack. We strictly separate **Logic** fro
 
 ### 📚 Documentation Hub
 
+* **SIWX:** [https://siwx.docs.tuwa.io/](https://siwx.docs.tuwa.io/)
 * **Orbit Utils:** [https://orbit.docs.tuwa.io/](https://orbit.docs.tuwa.io/)
 * **Satellite Connect:** [https://satellite.docs.tuwa.io/](https://satellite.docs.tuwa.io/)
 * **Pulsar Engine:** [https://pulsar.docs.tuwa.io/](https://pulsar.docs.tuwa.io/)
@@ -177,22 +185,27 @@ export type TransactionUnion = SwapTx;
 // src/app/actions.ts
 'use server';
 
-import { Quasar, MiniSessionAuth, utils } from '@tuwaio/quasar-sdk';
-import { TransactionUnion } from '@/types';
+import { Quasar, Transaction } from '@tuwaio/quasar-sdk';
+import { isSessionMatchingTarget, SiwxClientSession } from '@tuwaio/sdk/siwx';
+import { SiwxSession } from '@tuwaio/sdk/siwx/server';
 
 const quasar = new Quasar({ secretKey: process.env.QUASAR_SDK_SK ?? '' });
 
-export async function syncTransaction(tx: TransactionUnion, authData: MiniSessionAuth) {
-  const isValid = await utils.verifyMiniSession(authData);
-  if (!isValid) throw new Error('Invalid signature.');
+export async function syncTransaction(tx: Transaction, session: SiwxClientSession | SiwxSession | null) {
+  if (!session) return { success: false, reason: 'unauthenticated' };
+  
+  if (tx.from && !isSessionMatchingTarget(session, tx.from, tx.chainId)) {
+    return { success: false, reason: 'session_mismatch' };
+  }
 
   await quasar.pulsar.syncCreate(tx, 'My App');
   return { success: true };
 }
 
-export async function getHistory(params: any, authData: MiniSessionAuth) {
-  const isValid = await utils.verifyMiniSession(authData);
-  if (!isValid) throw new Error('Invalid signature.');
+export async function getHistory(params: any, session: SiwxClientSession | SiwxSession | null) {
+  if (!session || !isSessionMatchingTarget(session, params.walletAddress, params.chainId)) {
+    return null;
+  }
 
   return quasar.pulsar.getHistory(params);
 }
@@ -200,18 +213,7 @@ export async function getHistory(params: any, authData: MiniSessionAuth) {
 
 ---
 
-### 🔐 4. Client Auth Store (`useAuthStore.ts`)
-
-```typescript
-// src/hooks/useAuthStore.ts
-import { utils } from '@tuwaio/quasar-sdk';
-
-export const useAuthStore = utils.createMiniSessionStore('quasar-mini-session-storage');
-```
-
----
-
-### ⚙️ 5. Application Configuration (`appConfig.ts`)
+### ⚙️ 4. Application Configuration (`appConfig.ts`)
 
 Configure EVM chains, Wagmi connectors, default transports, and Solana RPC endpoints using SDK subpath imports:
 
@@ -239,7 +241,7 @@ export const wagmiConfig = createConfig({
 
 ---
 
-### ⚡ 6. Headless Tracking Store (`usePulsarStore.ts`)
+### ⚡ 5. Headless Tracking Store (`usePulsarStore.ts`)
 
 ```typescript
 // src/hooks/usePulsarStore.ts
@@ -248,7 +250,8 @@ export const wagmiConfig = createConfig({
 import { createPulsarStore, createTxInMemoryStore, createBoundedUseStore } from '@tuwaio/sdk/pulsar';
 import { pulsarEvmAdapter } from '@tuwaio/evm-sdk/pulsar';
 import { pulsarSolanaAdapter } from '@tuwaio/solana-sdk/pulsar';
-import { getMiniSessionAuth } from '@tuwaio/quasar-sdk/react';
+import { preFlightTxCheck } from '@tuwaio/quasar-sdk';
+import { useSiwxSessionStore } from '@tuwaio/sdk/siwx';
 
 import { getHistory, syncTransaction } from '@/app/actions';
 import { wagmiConfig, appEVMChains, solanaRPCUrls } from '@/configs/appConfig';
@@ -260,11 +263,12 @@ const initialStore = createPulsarStore<TransactionUnion>({
   name: storageName,
   adapter: [pulsarEvmAdapter(wagmiConfig, appEVMChains), pulsarSolanaAdapter({ rpcUrls: solanaRPCUrls })],
   beforeTxProcess: async () => {
-    await getMiniSessionAuth();
+    // Ensure Quasar engine is ready before sending transaction
+    await preFlightTxCheck('https://api.tuwa.io');
   },
   onRemoteCreate: async (tx) => {
     try {
-      const auth = await getMiniSessionAuth();
+      const auth = useSiwxSessionStore.getState().session;
       await syncTransaction(tx as TransactionUnion, auth);
     } catch (err) {
       console.error('[PulsarHook] Remote sync failed:', err);
@@ -278,7 +282,7 @@ const pulsarInMemoryStore = createTxInMemoryStore<TransactionUnion>({
   localTransactionsPool: initialStore.getState().transactionsPool,
   getHistory: async ({ page, walletAddress }) => {
     try {
-      const auth = await getMiniSessionAuth();
+      const auth = useSiwxSessionStore.getState().session;
       const history = await getHistory({ walletAddress, page, limit: 10, appName: 'My App' }, auth);
       if (!history) return null;
 
@@ -300,49 +304,7 @@ export const usePulsarInMemoryStore = createBoundedUseStore(pulsarInMemoryStore)
 
 ---
 
-### 🌉 7. Quasar Auth Bridge (`QuasarSDKAuthProvider.tsx`)
-
-```tsx
-// src/providers/QuasarSDKAuthProvider.tsx
-'use client';
-
-import { useContext, useEffect } from 'react';
-import { useSatelliteConnectStore, SatelliteStoreContext } from '@tuwaio/sdk/satellite';
-import { QuasarActiveConnection, QuasarAuthBridge as QuasarSDKAuthBridge } from '@tuwaio/quasar-sdk/react';
-import { wagmiConfig } from '@/configs/appConfig';
-import { useAuthStore } from '@/hooks/useAuthStore';
-
-export function QuasarAuthBridge() {
-  const activeConnection = useSatelliteConnectStore((s) => s.activeConnection);
-  const store = useContext(SatelliteStoreContext);
-
-  const session = useAuthStore((s) => s.miniSession);
-  const setSession = useAuthStore((s) => s.setMiniSession);
-  const clearSession = useAuthStore((s) => s.clearSession);
-
-  useEffect(() => {
-    if (!activeConnection?.isConnected) {
-      clearSession();
-    }
-  }, [activeConnection?.isConnected, clearSession]);
-
-  if (!activeConnection || !store) return null;
-
-  return (
-    <QuasarSDKAuthBridge
-      activeConnection={activeConnection as QuasarActiveConnection}
-      store={store as any}
-      wagmiConfig={wagmiConfig}
-      session={session}
-      setSession={setSession}
-    />
-  );
-}
-```
-
----
-
-### 📺 8. Nova Transactions Provider (`NovaTransactionsProvider.tsx`)
+### 📺 6. Nova Transactions Provider (`NovaTransactionsProvider.tsx`)
 
 ```tsx
 // src/providers/NovaTransactionsProvider.tsx
@@ -383,7 +345,7 @@ export function NovaTransactionsProvider({ pagination }: { pagination: TxInMemor
 
 ---
 
-### 🚀 9. Assembling Application Providers (`AppProviders.tsx`)
+### 🚀 7. Assembling Application Providers (`AppProviders.tsx`)
 
 ```tsx
 // src/providers/AppProviders.tsx
@@ -395,14 +357,15 @@ import { satelliteEVMAdapter } from '@tuwaio/evm-sdk/satellite';
 import { EVMConnectorsWatcher } from '@tuwaio/evm-sdk/nova-connect';
 import { satelliteSolanaAdapter } from '@tuwaio/solana-sdk/satellite';
 import { SolanaConnectorsWatcher } from '@tuwaio/solana-sdk/nova-connect';
-import { getMiniSessionAuth } from '@tuwaio/quasar-sdk/react';
+import { useSiwxSessionStore } from '@tuwaio/sdk/siwx';
 
 import { appEVMChains, solanaRPCUrls, wagmiConfig } from '@/configs/appConfig';
 import { usePulsarInMemoryStore, usePulsarStore } from '@/hooks/usePulsarStore';
 import { NovaTransactionsProvider } from '@/providers/NovaTransactionsProvider';
-import { QuasarAuthBridge } from '@/providers/QuasarSDKAuthProvider';
 
 export function AppProviders({ children }: { children: React.ReactNode }) {
+  const siwxSession = useSiwxSessionStore((s) => s.session);
+
   const getAdapter = usePulsarStore((s) => s.getAdapter);
   const transactionsPool = usePulsarInMemoryStore((s) => s.transactionsPool);
 
@@ -419,20 +382,10 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
     <SatelliteConnectProvider
       adapter={[satelliteEVMAdapter(wagmiConfig, appEVMChains), satelliteSolanaAdapter({ rpcUrls: solanaRPCUrls })]}
       autoConnect={true}
-      callbackAfterConnected={async (connection) => {
-        try {
-          await getMiniSessionAuth();
-          setTimeout(() => fetchInitial(connection.address), 2000);
-        } catch (err) {
-          console.error('[QuasarAuth] Auto-authentication failed:', err);
-          setTimeout(() => fetchInitial(connection.address), 2000);
-        }
-      }}
     >
-      <EVMConnectorsWatcher wagmiConfig={wagmiConfig} />
-      <SolanaConnectorsWatcher />
+      <EVMConnectorsWatcher wagmiConfig={wagmiConfig} siwx={siwxSession ?? undefined} />
+      <SolanaConnectorsWatcher siwx={siwxSession ?? undefined} />
 
-      <QuasarAuthBridge />
       <NovaTransactionsProvider pagination={pagination} />
 
       <NovaConnectProvider
@@ -444,6 +397,25 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
         withBalance
         withChain
         pagination={pagination}
+        siwx={{
+          verifier: async (payload) => {
+            const res = await fetch('/api/siwx/verify', {
+              method: 'POST',
+              body: JSON.stringify(payload),
+            });
+            return res.ok ? res.json() : null;
+          },
+          destroyer: async () => {
+            await fetch('/api/siwx/logout', { method: 'POST' });
+          },
+          onSuccess: (session) => {
+            const address = session.address.includes(':') ? session.address.split(':').pop()! : session.address;
+            fetchInitial(address);
+          },
+          onError: (error) => {
+            console.warn('[SIWX Auth Error]', error);
+          },
+        }}
       >
         {children}
       </NovaConnectProvider>
@@ -454,7 +426,7 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
 
 ---
 
-### 💻 10. Rendering UI Components (`page.tsx`)
+### 💻 8. Rendering UI Components (`page.tsx`)
 
 Render **`<ConnectButton />`** and **`<TxActionButton />`** anywhere in your application:
 
@@ -1163,6 +1135,16 @@ When acting as a developer using TUWA, you must strictly adhere to these rules:
 | `@tuwaio/orbit-evm` | [![NPM](https://img.shields.io/npm/v/@tuwaio/orbit-evm.svg)](https://npmjs.com/package/@tuwaio/orbit-evm) | ENS, chain switching, Viem helpers |
 | `@tuwaio/orbit-solana` | [![NPM](https://img.shields.io/npm/v/@tuwaio/orbit-solana.svg)](https://npmjs.com/package/@tuwaio/orbit-solana) | RPC client, name/avatar resolution |
 
+### Authentication Packages (SIWX)
+
+| Package | NPM | Purpose |
+| --- | --- | --- |
+| `@tuwaio/siwx-core` | [![NPM](https://img.shields.io/npm/v/@tuwaio/siwx-core.svg)](https://npmjs.com/package/@tuwaio/siwx-core) | CAIP-122 builder, parser, and validator |
+| `@tuwaio/siwx-evm` | [![NPM](https://img.shields.io/npm/v/@tuwaio/siwx-evm.svg)](https://npmjs.com/package/@tuwaio/siwx-evm) | EVM (EIP-191/1271) signers and verifiers |
+| `@tuwaio/siwx-solana` | [![NPM](https://img.shields.io/npm/v/@tuwaio/siwx-solana.svg)](https://npmjs.com/package/@tuwaio/siwx-solana) | Solana (ed25519) signers and verifiers |
+| `@tuwaio/siwx-react` | [![NPM](https://img.shields.io/npm/v/@tuwaio/siwx-react.svg)](https://npmjs.com/package/@tuwaio/siwx-react) | React hooks and Zustand session store |
+| `@tuwaio/siwx-server` | [![NPM](https://img.shields.io/npm/v/@tuwaio/siwx-server.svg)](https://npmjs.com/package/@tuwaio/siwx-server) | Backend-agnostic utilities (Next.js, NestJS) |
+
 ### Connectivity Packages
 
 | Package | NPM | Purpose |
@@ -1171,7 +1153,7 @@ When acting as a developer using TUWA, you must strictly adhere to these rules:
 | `@tuwaio/satellite-evm` | [![NPM](https://img.shields.io/npm/v/@tuwaio/satellite-evm.svg)](https://npmjs.com/package/@tuwaio/satellite-evm) | Wagmi/Viem bridge |
 | `@tuwaio/satellite-solana` | [![NPM](https://img.shields.io/npm/v/@tuwaio/satellite-solana.svg)](https://npmjs.com/package/@tuwaio/satellite-solana) | Gill/Wallet Standard bridge |
 | `@tuwaio/satellite-react` | [![NPM](https://img.shields.io/npm/v/@tuwaio/satellite-react.svg)](https://npmjs.com/package/@tuwaio/satellite-react) | React provider & hooks |
-| `@tuwaio/satellite-siwe-next-auth` | [![NPM](https://img.shields.io/npm/v/@tuwaio/satellite-siwe-next-auth.svg)](https://npmjs.com/package/@tuwaio/satellite-siwe-next-auth) | SIWE authentication for Next.js |
+| `@tuwaio/satellite-siwe-next-auth` | [![NPM](https://img.shields.io/npm/v/@tuwaio/satellite-siwe-next-auth.svg)](https://npmjs.com/package/@tuwaio/satellite-siwe-next-auth) | *(Deprecated)* Legacy SIWE auth |
 
 ### Transaction Packages
 
