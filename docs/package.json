@@ -1,4 +1,7 @@
 {
+  "scripts": {
+    "generate_pdf": "node generate_pdf.js"
+  },
   "dependencies": {
     "marked": "^18.0.9",
     "md-to-pdf": "^5.2.5"

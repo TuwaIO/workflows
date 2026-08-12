@@ -10,6 +10,19 @@ const files = [
   { name: 'cookie', out: 'сookie' } // Cyrillic 'с' for legacy URL support
 ];
 
+const DATE_FORMATTER = new Intl.DateTimeFormat('en-US', {
+  day: 'numeric',
+  month: 'long',
+  timeZone: 'Europe/Kyiv',
+  year: 'numeric'
+});
+
+function updateLastUpdatedDate(markdown) {
+  const lastUpdated = `Last Updated: ${DATE_FORMATTER.format(new Date())}`;
+
+  return markdown.replace(/^Last Updated:\s*.*$/m, lastUpdated);
+}
+
 const CSS = `
   @import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;600;700&display=swap');
 
@@ -75,8 +88,16 @@ async function generate() {
   const page = await browser.newPage();
 
   for (const file of files) {
-    const md = fs.readFileSync(path.join(process.cwd(), file.name + '.md'), 'utf8');
-    const svgLogo = fs.readFileSync(path.join(process.cwd(), '../preview/logo_v1.svg'), 'utf8');
+    const markdownPath = path.join(process.cwd(), file.name + '.md');
+    const originalMarkdown = fs.readFileSync(markdownPath, 'utf8');
+    const md = updateLastUpdatedDate(originalMarkdown);
+
+    if (md !== originalMarkdown) {
+      fs.writeFileSync(markdownPath, md, 'utf8');
+      console.log(`Updated date in ${file.name}.md`);
+    }
+
+    const svgLogo = fs.readFileSync(path.join(process.cwd(), '../preview/logo_v2.svg'), 'utf8');
     const htmlContent = marked.parse(md);
     
     const html = `

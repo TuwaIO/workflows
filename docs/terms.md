@@ -1,5 +1,5 @@
 # Terms of Service
-Last Updated: August 10, 2026
+Last Updated: August 12, 2026
 
 Welcome to TUWA! These Terms of Service ("Terms") govern your access to and use of the websites located at [tuwa.io](https://tuwa.io/), [demo.tuwa.io](https://demo.tuwa.io/), [custom-styles.tuwa.io](https://custom-styles.tuwa.io/), the Quasar dashboard located at [quasar.tuwa.io](https://quasar.tuwa.io/), and our open-source npm packages (Orbit, Satellite, Pulsar, Nova, and SIWX) (collectively, the "Ecosystem"), provided by FOP Tkach Oleksandr. By accessing the Ecosystem, you agree to be bound by these Terms.
 

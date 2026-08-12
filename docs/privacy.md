@@ -1,5 +1,5 @@
 # Privacy Policy
-Last Updated: August 10, 2026
+Last Updated: August 12, 2026
 
 This Privacy Policy describes how FOP Tkach Oleksandr ("we," "us," or "our") collects, uses, and protects your information when you use the unified TUWA ecosystem, which includes the main site [tuwa.io](https://tuwa.io/), the showcase at [demo.tuwa.io](https://demo.tuwa.io/), the Quasar dashboard at [quasar.tuwa.io](https://quasar.tuwa.io/), the Custom Styles editor at [custom-styles.tuwa.io](https://custom-styles.tuwa.io/), and our suite of open-source npm packages (Orbit, Satellite, Pulsar, Nova, SIWX).
 
