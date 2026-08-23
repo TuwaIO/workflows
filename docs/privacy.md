@@ -1,5 +1,5 @@
 # Privacy Policy
-Last Updated: August 12, 2026
+Last Updated: August 23, 2026
 
 This Privacy Policy describes how FOP Tkach Oleksandr ("we," "us," or "our") collects, uses, and protects your information when you use the unified TUWA ecosystem, which includes the main site [tuwa.io](https://tuwa.io/), the showcase at [demo.tuwa.io](https://demo.tuwa.io/), the Quasar dashboard at [quasar.tuwa.io](https://quasar.tuwa.io/), the Custom Styles editor at [custom-styles.tuwa.io](https://custom-styles.tuwa.io/), and our suite of open-source npm packages (Orbit, Satellite, Pulsar, Nova, SIWX).
 
@@ -24,4 +24,4 @@ We utilize robust RPC infrastructure to process blockchain requests. Users have 
 Most Web3 operations occur locally on your client device using Local Storage (e.g., via the Pulsar engine). Any data transmitted to the Quasar dashboard is protected using industry-standard security measures, including transport layer security (TLS) and strict tenant-isolation policies.
 
 ## 6. Your Rights (GDPR/CCPA Compliance)
-You have the right to access the personal data associated with your account, request corrections, and request its complete deletion from our infrastructure at any time. To exercise these rights, please contact us. Note that immutable on-chain data cannot be deleted.
+You have the right to access the personal data associated with your account, request corrections, and request its complete deletion from our infrastructure at any time. To exercise these rights, please contact us at [admin@tuwa.io](mailto:admin@tuwa.io). Note that immutable on-chain data cannot be deleted.

@@ -111,7 +111,7 @@ async function generate() {
       <body>
         <div class="header">
           <div class="logo-box">${svgLogo}</div>
-          <a class="header-email" href="mailto:liastik@proton.me">liastik@proton.me</a>
+          <a class="header-email" href="mailto:admin@tuwa.io">admin@tuwa.io</a>
         </div>
         ${htmlContent}
       </body>
