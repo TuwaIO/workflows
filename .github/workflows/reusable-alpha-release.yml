@@ -12,6 +12,9 @@ jobs:
       issues: write
       pull-requests: write
       id-token: write
+    env:
+      ACTIONS_RUNNER_FORCE_NODE24: 'false'
+      NODE_NO_WARNINGS: '1'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -27,7 +30,7 @@ jobs:
           git pull origin main --rebase
 
       - name: Setup PNPM
-        uses: pnpm/action-setup@v3
+        uses: pnpm/action-setup@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
