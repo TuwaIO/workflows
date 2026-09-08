@@ -31,7 +31,7 @@ TUWA is a headless-first, modular Web3 stack. We strictly separate **Logic** fro
 ┌─────────────────────────────▼───────────────────────────────┐
 │   @tuwaio/pulsar-*  (Transaction Tracking Engine)           │
 │  • pulsar-core: Headless state machine (Zustand)            │
-│  • pulsar-evm: EVM adapter (Standard, Safe, Gelato)         │
+│  • pulsar-evm: EVM adapter (Standard, ERC-4337, Safe)       │
 │  • pulsar-solana: Solana adapter                            │
 │  • pulsar-react: React bindings & hooks                     │
 └─────────────────────────────┬───────────────────────────────┘
@@ -40,7 +40,7 @@ TUWA is a headless-first, modular Web3 stack. We strictly separate **Logic** fro
 │   @tuwaio/satellite-*  (Wallet Connection Layer)            │
 │  • satellite-core: Universal store & types                  │
 │  • satellite-evm: Wagmi/Viem bridge                         │
-│  • satellite-solana: Gill/Wallet Standard bridge            │
+│  • satellite-solana: @solana/kit / Wallet Standard bridge   │
 │  • satellite-react: React provider & hooks                  │
 └─────────────────────────────┬───────────────────────────────┘
                               │
@@ -96,11 +96,13 @@ Any project using TUWA must adhere to these constraints to ensure stability and 
 | Requirement | Version | Notes                                                                   |
 | --- | --- |-------------------------------------------------------------------------|
 | **Runtime** | Node.js v20 - v24 (LTS) | ⚠️ **Node v25+ is PROHIBITED** - causes localStorage/vitest instability |
-| **Package Manager** | `pnpm` (Recommended) or `npm` | —                                                                       |
-| **Framework** | React v19+ / Next.js 16+ (App Router) | You can use Vite instead of Next.js if you want                         |
+| **Package Manager** | `pnpm` (v11+ Recommended) or `npm` | —                                                                       |
+| **Framework** | React v19+ / Next.js 16+ (App Router) | Vite / SPA compatible                                                   |
 | **Styling** | Tailwind CSS v4 | —                                                                       |
-| **Language** | TypeScript v5.9+ (Strict Mode) | —                                                                       |
-| **State** | Zustand + Immer | Required for Pulsar/Satellite                                           |
+| **Language** | TypeScript v6.0+ (Strict Mode) | Zero `any`, strict type checking                                        |
+| **State** | Zustand v5.x + Immer v11.x | Required for Pulsar/Satellite state stores                              |
+| **Web3 (EVM)** | `viem` v2.x, `@wagmi/core` v3.x | EIP-1193, Viem transports, Pimlico ERC-4337 bundler                     |
+| **Web3 (Solana)** | `@solana/kit` v8.x, `@wallet-standard/*` | Native `@solana/kit`, zero legacy `@solana/web3.js` or `gill`           |
 
 ---
 
@@ -456,7 +458,7 @@ export default function HomePage() {
 
     await executeTxAction({
       actionFunction: async () => {
-        // Execute smart contract call (e.g. writeContract via Viem/Wagmi or sendTransaction via Gill)
+        // Execute smart contract call (e.g. writeContract via Viem/Wagmi or signAndSendSolanaTx via @solana/kit)
         /* return await swapTokensContractCall(); */
       },
       onSuccess: (tx) => {
@@ -951,21 +953,46 @@ async function trackMyTransaction(txHash: string, chainId: number) {
 }
 ```
 
-### Gelato & Safe Fetchers
+### ERC-4337 (Pimlico) & Safe Multisig Fetchers
+
+#### 1. ERC-4337 UserOperation Tracker (Pimlico Bundler)
+
+Pulsar supports native two-stage tracking for ERC-4337 UserOperations:
+- **Stage 1 (Bundler Mempool)**: Polls `eth_getUserOperationReceipt` against the Pimlico Bundler RPC. Once bundled, commits the on-chain transaction hash to the store without evicting the transaction.
+- **Stage 2 (EVM On-Chain Finality)**: Hands off tracking to `evmTracker` for block confirmations and final execution status.
+
+```tsx
+import { initializePollingTracker, TransactionTracker } from '@tuwaio/pulsar-core';
+import { erc4337Fetcher, erc4337Tracker } from '@tuwaio/pulsar-evm';
+
+// Tracking an ERC-4337 UserOperation via Pimlico Bundler
+async function trackUserOperation(userOpHash: `0x${string}`, chainId: number, pimlicoApiKey: string) {
+  await erc4337Tracker({
+    tx: {
+      txKey: userOpHash,
+      chainId,
+      pimlicoApiKey,
+      pending: true,
+      tracker: TransactionTracker.ERC4337,
+    },
+    onIntervalTick: (result) => {
+      console.log('UserOp status tick:', result.status);
+    },
+    onSuccess: (result) => {
+      console.log('UserOperation included on-chain:', result.hash, result.receipt);
+    },
+    onFailure: (result) => {
+      console.error('UserOperation failed:', result?.reason);
+    },
+  });
+}
+```
+
+#### 2. Safe Multisig Tracker
 
 ```tsx
 import { initializePollingTracker } from '@tuwaio/pulsar-core';
-import { gelatoFetcher, safeFetcher } from '@tuwaio/pulsar-evm';
-
-// Tracking a Gelato relay task
-async function trackGelatoTask(taskId: string) {
-  await initializePollingTracker({
-    tx: { txKey: taskId },
-    fetcher: gelatoFetcher,
-    onSuccess: (status) => console.log('Gelato task succeeded:', status),
-    onFailure: (status) => console.error('Gelato task failed:', status),
-  });
-}
+import { safeFetcher } from '@tuwaio/pulsar-evm';
 
 // Tracking a Safe multisig transaction
 async function trackSafeTx(safeTxHash: string, chainId: number, fromAddress: string) {
@@ -975,6 +1002,26 @@ async function trackSafeTx(safeTxHash: string, chainId: number, fromAddress: str
     onSuccess: (status) => console.log('Safe transaction succeeded:', status),
     onFailure: (status) => console.error('Safe transaction failed:', status),
     onReplaced: (replacement) => console.warn('Transaction was replaced:', replacement),
+  });
+}
+```
+
+#### 3. Gelato Relay (Deprecated)
+
+> [!WARNING]
+> **Gelato Gasless Relay is DEPRECATED.** In the TUWA ecosystem, use `TransactionTracker.ERC4337` with Pimlico Bundler for gasless / sponsored transactions.
+
+```tsx
+import { initializePollingTracker } from '@tuwaio/pulsar-core';
+import { gelatoFetcher } from '@tuwaio/pulsar-evm';
+
+// Tracking a legacy Gelato relay task (Deprecated)
+async function trackGelatoTask(taskId: string) {
+  await initializePollingTracker({
+    tx: { txKey: taskId },
+    fetcher: gelatoFetcher,
+    onSuccess: (status) => console.log('Gelato task succeeded:', status),
+    onFailure: (status) => console.error('Gelato task failed:', status),
   });
 }
 ```
@@ -1035,7 +1082,8 @@ async function trackMySolanaTransaction(txSignature: string, rpcUrl: string, cha
 ### Helper: `signAndSendSolanaTx`
 
 ```tsx
-import type { Instruction, SolanaClient, TransactionSendingSigner } from 'gill';
+import type { Instruction, TransactionSendingSigner } from '@solana/kit';
+import type { SolanaClient } from '@tuwaio/orbit-solana';
 import { signAndSendSolanaTx } from '@tuwaio/pulsar-solana';
 
 async function sendTransaction(
@@ -1068,6 +1116,36 @@ function ensureCorrectNetwork(requiredChain: string, currentChain: string) {
 }
 ```
 
+### Solana Program Generation (Codama Standard)
+
+When interacting with custom Anchor programs on Solana, the TUWA ecosystem enforces modern Codama code generation targeting `@solana/kit`:
+
+1. Place your Anchor IDL JSON under `src/targets/<program>/idl/<program>.json`.
+2. Configure `codama.json` at your application root:
+
+```json
+{
+  "scripts": {
+    "js": {
+      "from": {
+        "anchor": "src/targets/solanatest/idl/solanatest.json"
+      },
+      "to": {
+        "js": "src/programs/solanatest/generated"
+      },
+      "kitImportStrategy": "rootOnly"
+    }
+  }
+}
+```
+
+3. Configure `"generate:solana": "codama run js"` in `package.json` with devDependencies:
+   - `@codama/cli: "^1.6.2"`
+   - `@codama/nodes-from-anchor: "^1.5.5"`
+   - `@codama/renderers-js: "^2.4.0"`
+
+4. **Zero-Tolerance Manual Edit Rule**: **NEVER** edit files inside `src/programs/*/generated/` manually. All updates must originate from the Anchor IDL and be compiled via `pnpm generate:solana`.
+
 ---
 
 ## 8. Quick Start Templates (Cosmos Playground)
@@ -1080,48 +1158,53 @@ npx @tuwaio/create-cosmos-playground
 
 ### Available Templates
 
-| Template | Description |
-| --- | --- |
-| **`custom-style`** | Vite example with full customization of nova-transactions and nova-connect |
-| **`nextjs-tuwa`** | Next.js example with dynamic switching between Solana and EVM adapters |
-| **`nextjs-solana`** | Next.js example demonstrating Solana transaction tracking |
-| **`nextjs-evm`** | Next.js example demonstrating EVM transaction tracking |
-| **`vite-tuwa`** | Simple Vite-based example with Nova Connect |
+| Template | Framework | Features & Scope |
+| --- | --- | --- |
+| **`nextjs-tuwa`** | Next.js 16 (App Router) | Multi-chain EVM + Solana with Pimlico ERC-4337 counter, Codama Anchor program, and Nova UIKit. |
+| **`nextjs-tuwa-quasar`** | Next.js 16 (App Router) | Multi-chain dApp integrated with Quasar Cloud Indexing, SIWX authentication, and Webhooks. |
+| **`vite-tuwa`** | Vite + React 19 | High-performance SPA multi-chain template featuring Nova Connect and Pimlico ERC-4337 UserOperations. |
+| **`nextjs-solana`** | Next.js 16 (App Router) | Solana-dedicated template featuring native `@solana/kit`, modern Codama IDL generation, and transaction tracking. |
+| **`nextjs-evm`** | Next.js 16 (App Router) | EVM-dedicated template with Viem transports, Wagmi connectors, and Pimlico ERC-4337 gasless counter execution. |
+| **`nextjs-tuwa-not-sdk`** | Next.js 16 (App Router) | Modular reference template consuming individual `@tuwaio/*` packages directly (no metapackage), with legacy Gelato reference. |
+| **`custom-style`** | Vite + React 19 | Deep customization template demonstrating custom CSS variables and bespoke Nova UIKit styling overrides. |
 
-**Live Demo:** [https://custom-style.tuwa.io/](https://custom-style.tuwa.io/)
+**Live Showcase:** [https://custom-style.tuwa.io/](https://custom-style.tuwa.io/)
 
 ---
 
 ## 9. AI Agent Guidelines (Rules of Engagement)
 
-When acting as a developer using TUWA, you must strictly adhere to these rules:
+When acting as a developer using the TUWA ecosystem, you must strictly adhere to these rules:
 
 ### 1. Dependency Integrity
 
-* **NEVER** install `ethers.js` or `web3.js`. Always use `viem` and `wagmi`.
-* **NEVER** use `@solana/web3.js` legacy classes directly. Use `gill` or `@tuwaio/orbit-solana` helpers.
-* **NEVER** mix Satellite (connection state) logic with Orbit (utilities) logic.
+* **FORBIDDEN**: `ethers.js`, `web3.js`, `gill`, `@solana/web3.js` legacy classes, `RainbowKit`, `ConnectKit`, legacy `siwe`.
+* **REQUIRED**: `viem`, `@wagmi/core`, `@solana/kit` (v8.x), `@wallet-standard/*`, `@tuwaio/orbit-solana`, `@tuwaio/solana-sdk`.
+* **CODAMA INTEGRITY**: Never edit generated program code in `src/programs/*/generated/` manually. All modifications must be made in the Anchor IDL and generated with `codama.json` (`kitImportStrategy: "rootOnly"`).
+* **ERC-4337 & RELAYING**: Prefer native `TransactionTracker.ERC4337` with Pimlico Bundler for gasless/sponsored transactions. Gelato relay is deprecated.
+* **LAYER SEPARATION**: Never mix Satellite (connection state) logic with Orbit (utilities) logic or UI logic.
 
 ### 2. State Management
 
 * **DO NOT** create local `useState` for transaction loading states (`isLoading`, `isSuccess`).
 * **ALWAYS** use `usePulsarStore` -> `executeTxAction` for blockchain writes.
 * **ALWAYS** use `immer` patterns (`produce`) when modifying complex state manually.
-* **ALWAYS** use atomic selectors from Zustand stores to prevent re-renders.
+* **ALWAYS** use atomic selectors from Zustand stores to prevent unnecessary re-renders.
 
 ### 3. Visual Consistency
 
 * Use `@tuwaio/nova-core` utility `cn()` for class merging.
-* Use Tailwind classes for layout.
+* Use Tailwind CSS classes for layout structure.
 * Use `--tuwa-*` CSS variables for coloring to respect the user's theme.
 * Use `--tuwa-rounded-corners` for all border radius values.
 * Use `--tuwa-ring-width` for focus ring widths.
 
 ### 4. Code Quality
 
-* Run `pnpm lint --fix` after generating implementation code.
+* TypeScript v6.0+ in Strict Mode. **NO `any`**. Usage of `ts-expect-error` must be justified.
 * Strictly define types for Transaction payloads in Pulsar.
-* Use TypeScript strict mode.
+* English ONLY for all code, comments, and technical documentation.
+* Run `pnpm lint --fix` and `pnpm format` after code modifications.
 
 ---
 
@@ -1151,7 +1234,7 @@ When acting as a developer using TUWA, you must strictly adhere to these rules:
 | --- | --- | --- |
 | `@tuwaio/satellite-core` | [![NPM](https://img.shields.io/npm/v/@tuwaio/satellite-core.svg)](https://npmjs.com/package/@tuwaio/satellite-core) | Universal store & types |
 | `@tuwaio/satellite-evm` | [![NPM](https://img.shields.io/npm/v/@tuwaio/satellite-evm.svg)](https://npmjs.com/package/@tuwaio/satellite-evm) | Wagmi/Viem bridge |
-| `@tuwaio/satellite-solana` | [![NPM](https://img.shields.io/npm/v/@tuwaio/satellite-solana.svg)](https://npmjs.com/package/@tuwaio/satellite-solana) | Gill/Wallet Standard bridge |
+| `@tuwaio/satellite-solana` | [![NPM](https://img.shields.io/npm/v/@tuwaio/satellite-solana.svg)](https://npmjs.com/package/@tuwaio/satellite-solana) | @solana/kit & Wallet Standard bridge |
 | `@tuwaio/satellite-react` | [![NPM](https://img.shields.io/npm/v/@tuwaio/satellite-react.svg)](https://npmjs.com/package/@tuwaio/satellite-react) | React provider & hooks |
 | `@tuwaio/satellite-siwe-next-auth` | [![NPM](https://img.shields.io/npm/v/@tuwaio/satellite-siwe-next-auth.svg)](https://npmjs.com/package/@tuwaio/satellite-siwe-next-auth) | *(Deprecated)* Legacy SIWE auth |
 
@@ -1160,7 +1243,7 @@ When acting as a developer using TUWA, you must strictly adhere to these rules:
 | Package | NPM | Purpose |
 | --- | --- | --- |
 | `@tuwaio/pulsar-core` | [![NPM](https://img.shields.io/npm/v/@tuwaio/pulsar-core.svg)](https://npmjs.com/package/@tuwaio/pulsar-core) | Headless state machine |
-| `@tuwaio/pulsar-evm` | [![NPM](https://img.shields.io/npm/v/@tuwaio/pulsar-evm.svg)](https://npmjs.com/package/@tuwaio/pulsar-evm) | EVM adapter (Standard, Safe, Gelato) |
+| `@tuwaio/pulsar-evm` | [![NPM](https://img.shields.io/npm/v/@tuwaio/pulsar-evm.svg)](https://npmjs.com/package/@tuwaio/pulsar-evm) | EVM adapter (Standard, ERC-4337 / Pimlico, Safe, Gelato [deprecated]) |
 | `@tuwaio/pulsar-solana` | [![NPM](https://img.shields.io/npm/v/@tuwaio/pulsar-solana.svg)](https://npmjs.com/package/@tuwaio/pulsar-solana) | Solana adapter |
 | `@tuwaio/pulsar-react` | [![NPM](https://img.shields.io/npm/v/@tuwaio/pulsar-react.svg)](https://npmjs.com/package/@tuwaio/pulsar-react) | React bindings & hooks |
 
@@ -1182,9 +1265,15 @@ When acting as a developer using TUWA, you must strictly adhere to these rules:
 
 | Package | NPM | Purpose |
 | --- | --- | --- |
-| `@tuwaio/sdk` | [![NPM](https://img.shields.io/npm/v/@tuwaio/sdk.svg)](https://npmjs.com/package/@tuwaio/sdk) | Core SDK bundling Orbit, Pulsar, Satellite, and Nova |
+| `@tuwaio/sdk` | [![NPM](https://img.shields.io/npm/v/@tuwaio/sdk.svg)](https://npmjs.com/package/@tuwaio/sdk) | Core SDK bundling Orbit, Pulsar, Satellite, Nova, and SIWX |
 | `@tuwaio/evm-sdk` | [![NPM](https://img.shields.io/npm/v/@tuwaio/evm-sdk.svg)](https://npmjs.com/package/@tuwaio/evm-sdk) | EVM network adapter SDK & background state watchers |
 | `@tuwaio/solana-sdk` | [![NPM](https://img.shields.io/npm/v/@tuwaio/solana-sdk.svg)](https://npmjs.com/package/@tuwaio/solana-sdk) | Solana network adapter SDK & background state watchers |
+
+### Tooling & CLI Packages
+
+| Package | NPM | Purpose |
+| --- | --- | --- |
+| `@tuwaio/create-cosmos-playground` | [![NPM](https://img.shields.io/npm/v/@tuwaio/create-cosmos-playground.svg)](https://npmjs.com/package/@tuwaio/create-cosmos-playground) | Official CLI for scaffolding TUWA multi-chain dApp templates |
 
 ---
 

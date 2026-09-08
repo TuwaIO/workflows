@@ -14,9 +14,13 @@ By using the reusable components from this repository, we follow the **DRY (Don'
 
 ## What's Inside?
 
-* **`.github/workflows/`**: A collection of reusable GitHub Actions workflows for common tasks.
-* **`CONTRIBUTING.md`**: Centralized community guidelines.
-* **`preview/`**: Shared assets like logos and diagrams that can be referenced from other repositories.
+* **`TUWA_AGENTS.md`**: Master Integration Standard and Single Source of Truth for building dApps and configuring AI agents across the TUWA ecosystem.
+* **`.github/workflows/`**: Reusable GitHub Actions workflows for automated alpha releases and stable NPM package publishing.
+* **`EMAIL_ROUTING.md`**: Centralized email routing manifest establishing official contact addresses under the `@tuwa.io` domain.
+* **`Donation.md`**: Multi-chain cryptocurrency donation manifest supporting open-source development.
+* **`CONTRIBUTING.md` & `CODE_OF_CONDUCT.md`**: Universal community standards, code guidelines, and PR procedures.
+* **`docs/`**: Official legal policies (Privacy Policy, Terms of Service, Cookie Policy) with automated headless PDF generation tooling.
+* **`preview/`**: Shared ecosystem visual assets, logos, and architecture diagrams.
 
 ---
 

@@ -48,7 +48,7 @@ The general workflow, however, is consistent:
 1.  **Fork the repository** of the project you want to contribute to on GitHub.
 2.  **Clone your fork** to your local machine:
     ```bash
-    git clone [https://github.com/YOUR_USERNAME/](https://github.com/YOUR_USERNAME/)[repository-name].git
+    git clone https://github.com/YOUR_USERNAME/[repository-name].git
     cd [repository-name]
     ```
 3.  **Follow the setup instructions** in that project's `README.md` to install dependencies (e.g., using `pnpm install`).

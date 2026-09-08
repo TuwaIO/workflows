@@ -1,6 +1,6 @@
 ## Support the TUWA Ecosystem 🤝
 
-Thank you for considering supporting the development of **Orbit**, **Pulsar**, **Satellite**, **Nova UI Kit**, **Quasar**, and **SDK**!
+Thank you for considering supporting the development of **Orbit**, **SIWX**, **Satellite**, **Pulsar**, **Nova UI Kit**, **Quasar**, and **SDK**!
 
 Our mission is to build the "Pure Web3" infrastructure—tools that guarantee sovereignty, self-custody, and technical honesty. We are creating an ecosystem where developers don't have to choose between convenience and control.
 
