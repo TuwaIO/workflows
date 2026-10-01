@@ -37,7 +37,7 @@ Step-by-step guides (the long form of this file): [Full-Stack React](https://doc
 | Language    | TypeScript, strict mode                                                                                            |
 | Styling     | Tailwind CSS v4 (optional: the Nova stylesheets are precompiled)                                                   |
 | State       | `zustand` 5, `immer` 11                                                                                            |
-| EVM         | `@wagmi/core` 3 and `viem` 2 (no `wagmi` React package: the app hydrates the config itself, see §4)                |
+| EVM         | `@wagmi/core` 3 and `viem` 2 (no `wagmi` React package and no `WagmiProvider`)                                     |
 | Solana      | `@solana/kit` 8.2+, `@wallet-standard/*`, `@solana/react` for the transaction signer                               |
 
 ---
@@ -90,7 +90,7 @@ Wallet connection with the Nova Connect modals, SIWX sign-in with server session
 ```ts
 // src/configs/appConfig.ts
 import { createDefaultTransports } from '@tuwaio/evm-sdk/satellite';
-import { createConfig, hydrate, injected } from '@wagmi/core';
+import { createConfig, injected } from '@wagmi/core';
 import { mainnet, sepolia } from 'viem/chains';
 
 export const appChains = [sepolia, mainnet] as const;
@@ -102,10 +102,6 @@ export const wagmiConfig = createConfig({
   transports: createDefaultTransports(appChains),
   ssr: true,
 });
-
-// Without WagmiProvider, hydrate the config in the browser: with `ssr: true`, only hydration adds the installed
-// EIP-6963 wallets (MetaMask, Rabby, …) to the connectors. Satellite Connect reconnects the last wallet itself.
-if (typeof window !== 'undefined') void hydrate(wagmiConfig, { reconnectOnMount: false }).onMount();
 
 // An RPC URL for each Solana cluster the app uses, by cluster name: mainnet, devnet, testnet
 export const solanaRPCUrls = {
@@ -792,7 +788,7 @@ Source: [cosmos-playground/examples](https://github.com/TuwaIO/cosmos-playground
 **Wiring**
 
 - Create the wagmi config, the Satellite adapters, the Pulsar stores and the `siwx` options once, at module level. A new adapter on every render makes `SatelliteConnectProvider` update its store each time.
-- Right after `createConfig`, call `hydrate(wagmiConfig, { reconnectOnMount: false }).onMount()` in the browser (`typeof window !== 'undefined'`), as in §4. Without it (and without `WagmiProvider`), a config with `ssr: true` never adds the EIP-6963 wallets: the connect modal lists no installed wallets and the last one does not reconnect after a reload. Keep `reconnectOnMount: false`: Satellite Connect restores the connection.
+- `EVMConnectorsWatcher` hydrates a wagmi config created with `ssr: true` (`@tuwaio/satellite-react` 0.6.3+, in `@tuwaio/sdk` 0.2.1+): it adds the installed EIP-6963 wallets (MetaMask, Rabby…) to the connectors. Do not add `WagmiProvider` or a manual `hydrate` call for this; with an older version the connect modal lists no installed wallets.
 - Render one watcher per network inside `SatelliteConnectProvider`: `EVMConnectorsWatcher` (with `wagmiConfig`) and `SolanaConnectorsWatcher`.
 - Pass `siwx` only to `NovaConnectProvider`, never to the watchers, and always with `getNonce`: the SIWX server handlers accept only nonces they issued.
 - `solanaRPCUrls` is keyed by cluster name (`mainnet`, `devnet`, `testnet`), not by `solana:…` chain ID.
