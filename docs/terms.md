@@ -1,7 +1,7 @@
 # Terms of Service
 Last Updated: August 23, 2026
 
-Welcome to TUWA! These Terms of Service ("Terms") govern your access to and use of the websites located at [tuwa.io](https://tuwa.io/), [demo.tuwa.io](https://demo.tuwa.io/), [custom-styles.tuwa.io](https://custom-styles.tuwa.io/), the Quasar dashboard located at [quasar.tuwa.io](https://quasar.tuwa.io/), and our open-source npm packages (Orbit, Satellite, Pulsar, Nova, and SIWX) (collectively, the "Ecosystem"), provided by FOP Tkach Oleksandr. By accessing the Ecosystem, you agree to be bound by these Terms.
+Welcome to TUWA! These Terms of Service ("Terms") govern your access to and use of the websites located at [tuwa.io](https://tuwa.io/), [demo.tuwa.io](https://demo.tuwa.io/), [custom-style.tuwa.io](https://custom-style.tuwa.io/), the Quasar dashboard located at [quasar.tuwa.io](https://quasar.tuwa.io/), and our open-source npm packages (Orbit, Satellite, Pulsar, Nova, and SIWX) (collectively, the "Ecosystem"), provided by FOP Tkach Oleksandr. By accessing the Ecosystem, you agree to be bound by these Terms.
 
 ## 1. Open Source Software & SaaS Cloud
 The TUWA Ecosystem represents a hybrid architecture. Our npm packages (including Orbit, Satellite, Pulsar, Nova, and SIWX) are open-source and licensed under the [Apache 2.0 License](https://github.com/TuwaIO). Quasar is our proprietary, integrated SaaS cloud layer providing API endpoints, state synchronization, billing, and dashboard features.

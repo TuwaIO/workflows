@@ -1,10 +1,10 @@
 # Privacy Policy
 Last Updated: August 23, 2026
 
-This Privacy Policy describes how FOP Tkach Oleksandr ("we," "us," or "our") collects, uses, and protects your information when you use the unified TUWA ecosystem, which includes the main site [tuwa.io](https://tuwa.io/), the showcase at [demo.tuwa.io](https://demo.tuwa.io/), the Quasar dashboard at [quasar.tuwa.io](https://quasar.tuwa.io/), the Custom Styles editor at [custom-styles.tuwa.io](https://custom-styles.tuwa.io/), and our suite of open-source npm packages (Orbit, Satellite, Pulsar, Nova, SIWX).
+This Privacy Policy describes how FOP Tkach Oleksandr ("we," "us," or "our") collects, uses, and protects your information when you use the unified TUWA ecosystem, which includes the main site [tuwa.io](https://tuwa.io/), the showcase at [demo.tuwa.io](https://demo.tuwa.io/), the Quasar dashboard at [quasar.tuwa.io](https://quasar.tuwa.io/), the Custom Styles editor at [custom-style.tuwa.io](https://custom-style.tuwa.io/), and our suite of open-source npm packages (Orbit, Satellite, Pulsar, Nova, SIWX).
 
 ## 1. Open Source Ecosystem & Transparency
-The core logical layers of TUWA are open-source and publicly available on [GitHub](https://github.com/TuwaIO). Our npm packages (`@tuwaio/orbit-*`, `@tuwaio/satellite-*`, `@tuwaio/pulsar-*`, `@tuwaio/nova-*`, `@tuwaio/siwx-*`) operate locally in your environment. We encourage you to review our [Documentation](https://tuwa.io/docs) to fully understand how data flows within these headless and UI-agnostic modules.
+The core logical layers of TUWA are open-source and publicly available on [GitHub](https://github.com/TuwaIO). Our npm packages (`@tuwaio/orbit-*`, `@tuwaio/satellite-*`, `@tuwaio/pulsar-*`, `@tuwaio/nova-*`, `@tuwaio/siwx-*`) operate locally in your environment. We encourage you to review our [Documentation](https://docs.tuwa.io) to fully understand how data flows within these headless and UI-agnostic modules.
 
 ## 2. Core Principle: Self-Custody
 Our philosophy is Purist Web3. We operate on a Local-First and Self-Custody basis. We NEVER ask for, access, or store your private keys. You maintain full sovereignty over your digital assets at all times.
