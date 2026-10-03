@@ -371,7 +371,8 @@ function SendButton(props: { account: WalletAccount; connection: SolanaConnectio
   const executeTxAction = usePulsarStore((state) => state.executeTxAction);
   const transactionsPool = usePulsarStore((state) => state.transactionsPool);
   const getLastTxKey = usePulsarStore((state) => state.getLastTxKey);
-  const cluster = String(connection.chainId); // 'devnet', 'mainnet', …
+  // Satellite keeps the cluster moniker ('devnet', 'mainnet', …); Wallet Standard calls take it as `solana:${cluster}`
+  const cluster = String(connection.chainId);
   const signer = useWalletAccountTransactionSendingSigner(account, `solana:${cluster}`);
 
   const send = () =>
@@ -684,7 +685,7 @@ The trackers work without the store, for your own state or a server. `evmTracker
 
 ```ts
 // src/lib/trackTransaction.ts
-import { OrbitAdapter } from '@tuwaio/orbit-core';
+import { OrbitAdapter, SOLANA_CHAIN_IDS } from '@tuwaio/orbit-core';
 import { initializePollingTracker } from '@tuwaio/pulsar-core';
 import { evmTracker } from '@tuwaio/pulsar-evm';
 import { solanaFetcher } from '@tuwaio/pulsar-solana';
@@ -709,7 +710,7 @@ export function trackSolanaSignature(signature: string) {
     tx: {
       adapter: OrbitAdapter.SOLANA,
       txKey: signature,
-      chainId: 'solana:devnet',
+      chainId: SOLANA_CHAIN_IDS.devnet, // CAIP-2 chain ID with the genesis hash, as Pulsar saves it
       rpcUrl: 'https://api.devnet.solana.com',
       localTimestamp: Math.floor(Date.now() / 1000), // when the transaction was sent, in seconds
       pending: true, // polling starts only for pending transactions
@@ -792,6 +793,7 @@ Source: [cosmos-playground/examples](https://github.com/TuwaIO/cosmos-playground
 - Render one watcher per network inside `SatelliteConnectProvider`: `EVMConnectorsWatcher` (with `wagmiConfig`) and `SolanaConnectorsWatcher`.
 - Pass `siwx` only to `NovaConnectProvider`, never to the watchers, and always with `getNonce`: the SIWX server handlers accept only nonces they issued.
 - `solanaRPCUrls` is keyed by cluster name (`mainnet`, `devnet`, `testnet`), not by `solana:…` chain ID.
+- Solana chain IDs have two forms. A Satellite connection keeps the cluster moniker (`devnet`), which Wallet Standard calls take as `solana:devnet`. Everywhere a chain is identified — SIWX messages and `allowedChainIds`, `tx.chainId` of Pulsar, Quasar records and webhooks — it is the CAIP-2 chain ID with the genesis hash (`SOLANA_CHAIN_IDS`, `getSolanaChainId` from `@tuwaio/sdk/orbit`). Compare Solana chains with `getSolanaCluster`, never as strings: data saved before October 2026 carries `solana:devnet`.
 - Import `ConnectButton` from `@tuwaio/sdk/nova-connect/components` and `preFlightTxCheck` from `@tuwaio/quasar-sdk/react`.
 - Render `NovaTransactionsProvider` once and call `useInitializeTransactionsPool` once, so pending transactions resume after a reload.
 - The impersonated wallet (`impersonated()` connector and `withImpersonated`) cannot sign messages: leave it out of apps with SIWX, where Nova Connect would disconnect it.
