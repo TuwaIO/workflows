@@ -3,7 +3,7 @@
 > Context for AI coding agents that build apps with TUWA. Copy this file into the `AGENTS.md` (or `CLAUDE.md`, `.cursorrules`) of your app, or point the agent to its raw URL: `https://raw.githubusercontent.com/TuwaIO/workflows/main/TUWA_AGENTS.md`.
 > The maintainers of the TUWA packages follow the `AGENTS.md` of each repository instead.
 
-Every code block below compiles against the current releases (`@tuwaio/sdk` 0.2, Nova UI Kit 0.7, Pulsar 0.8, Satellite Connect 0.6, SIWX 0.4). When the docs and this file disagree, the docs win.
+Every code block below compiles against the current releases (`@tuwaio/sdk` 0.4, Nova UI Kit 0.8, Pulsar 0.9, Satellite Connect 0.8, SIWX 0.6, Orbit 0.5). When the docs and this file disagree, the docs win.
 
 ---
 
@@ -24,7 +24,7 @@ TUWA is a headless-first, modular Web3 stack for EVM and Solana: state and logic
 
 Dependencies point one way: Orbit ← SIWX, Satellite Connect, Pulsar ← Nova UI Kit ← TUWA SDK. A package never imports a project above it. Quasar is a service, reached only through `@tuwaio/quasar-sdk` on your server.
 
-Step-by-step guides (the long form of this file): [Full-Stack React](https://docs.tuwa.io/guides/full-stack-react), [Quasar transaction sync](https://docs.tuwa.io/guides/quasar-transaction-sync), [React transaction tracking](https://docs.tuwa.io/guides/react-transaction-tracking) (packages without the SDK), [Multi-chain authentication](https://docs.tuwa.io/guides/multi-chain-auth-siwx-caip122).
+Step-by-step guides (the long form of this file): [Full-Stack React](https://docs.tuwa.io/guides/full-stack-react), [Quasar transaction sync](https://docs.tuwa.io/guides/quasar-transaction-sync), [React transaction tracking](https://docs.tuwa.io/guides/react-transaction-tracking) (packages without the SDK), [Multi-chain authentication](https://docs.tuwa.io/guides/multi-chain-auth-siwx-caip122), [External auth with SIWX JWT](https://docs.tuwa.io/guides/siwx-jwt-external-auth).
 
 ---
 
@@ -140,6 +140,43 @@ export const { GET, POST, DELETE } = createSiwxApiHandler({
 ```
 
 Demos without a database use `createStatelessDemoSiwxHandler({ signingSecret, policy })` from the same subpath instead (a signed cookie; sessions cannot be revoked) and read the session with `getSiwxServerSession({ cookieSource, signingSecret })`, as the `nextjs-evm` and `nextjs-tuwa-quasar` templates do.
+
+**Smart contract wallets and JWT for external auth.** EOA wallets sign in on any chain without more setup. Smart contract wallets (Safe, Coinbase Smart Wallet / Base Account, ERC-4337 accounts) need a viem client for the chain they sign on, in `verifyOptions.publicClient`: deployed ones are checked with EIP-1271, not yet deployed ones with ERC-6492. To hand the sign-in to a service that accepts only a JWT (Coinbase CDP custom authentication, other embedded wallet providers, your own services), add the `jwt` option: it serves `GET /api/siwx/token` (a JWT for the session cookie, 10 minutes by default) and `GET /api/siwx/jwks` (the public keys). Create the key once with `generateSiwxJwtKey()` from `@tuwaio/sdk/siwx/server` and keep the private JWK in `SIWX_JWT_PRIVATE_KEY`. The walkthrough with Coinbase CDP is the [External auth guide](https://docs.tuwa.io/guides/siwx-jwt-external-auth).
+
+```ts
+// src/app/api/siwx/[...siwx]/route.ts (EVM, with smart contract wallets and JWT)
+import type { EvmVerifyClient } from '@tuwaio/evm-sdk/siwx';
+import { importSiwxJwtKey } from '@tuwaio/sdk/siwx/server';
+import { createSiwxApiHandler } from '@tuwaio/sdk/siwx/server-next';
+import { createPublicClient, http } from 'viem';
+
+import { appChains } from '@/configs/appConfig';
+import { nonceStore, sessionStore } from '@/lib/authStores';
+
+const appUrl = new URL(process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000');
+
+// One client per chain: a contract wallet is only checked on the chain it signed on
+const clients = new Map<number, EvmVerifyClient>(
+  appChains.map((chain) => [chain.id, createPublicClient({ chain, transport: http() })]),
+);
+
+export const { GET, POST, DELETE } = createSiwxApiHandler({
+  sessionStore,
+  nonceStore,
+  policy: {
+    expectedDomain: appUrl.host,
+    expectedUri: appUrl.origin,
+    requireExpirationTime: true,
+    maxIssuedAtAgeSeconds: 300,
+  },
+  verifyOptions: { publicClient: (chainId) => clients.get(chainId) },
+  jwt: {
+    signingKey: importSiwxJwtKey({ privateKey: process.env.SIWX_JWT_PRIVATE_KEY ?? '' }),
+    issuer: appUrl.origin,
+    audience: 'my-app',
+  },
+});
+```
 
 ```ts
 // src/transactions.ts
@@ -793,6 +830,7 @@ Source: [cosmos-playground/examples](https://github.com/TuwaIO/cosmos-playground
 - Render one watcher per network inside `SatelliteConnectProvider`: `EVMConnectorsWatcher` (with `wagmiConfig`) and `SolanaConnectorsWatcher`.
 - Pass `siwx` only to `NovaConnectProvider`, never to the watchers, and always with `getNonce`: the SIWX server handlers accept only nonces they issued.
 - `solanaRPCUrls` is keyed by cluster name (`mainnet`, `devnet`, `testnet`), not by `solana:…` chain ID.
+- Build and read chain and account IDs with the CAIP helpers of `@tuwaio/sdk/orbit` (`toCaip2ChainId`, `toEvmChainId`, `formatCaip10AccountId`, `parseCaip10AccountId`, `formatCaip19AssetId`, `parseCaip19AssetId`), never with template strings or `split(':')`. SIWX checks the address of a CAIP-10 account against its chain (`0x` and 40 hex characters for EVM, base58 for Solana).
 - Solana chain IDs have two forms. A Satellite connection keeps the cluster moniker (`devnet`), which Wallet Standard calls take as `solana:devnet`. Everywhere a chain is identified — SIWX messages and `allowedChainIds`, `tx.chainId` of Pulsar, Quasar records and webhooks — it is the CAIP-2 chain ID with the genesis hash (`SOLANA_CHAIN_IDS`, `getSolanaChainId` from `@tuwaio/sdk/orbit`). Compare Solana chains with `getSolanaCluster`, never as strings: data saved before October 2026 carries `solana:devnet`.
 - Import `ConnectButton` from `@tuwaio/sdk/nova-connect/components` and `preFlightTxCheck` from `@tuwaio/quasar-sdk/react`.
 - Render `NovaTransactionsProvider` once and call `useInitializeTransactionsPool` once, so pending transactions resume after a reload.
@@ -802,6 +840,7 @@ Source: [cosmos-playground/examples](https://github.com/TuwaIO/cosmos-playground
 
 - Keep secrets on the server: `QUASAR_SECRET_KEY`, `QUASAR_WEBHOOK_SECRET` and the SIWX signing secret. Only `NEXT_PUBLIC_*` and `VITE_*` values reach the browser.
 - Server code reads the session with `getSiwxServerSession` from the cookie and checks it with `isSessionMatchingTarget` before acting for a wallet. Never accept a session object from the browser.
+- Keep `SIWX_JWT_PRIVATE_KEY` on the server. Fetch SIWX JWTs from `/api/siwx/token` when a service needs one and never store them in `localStorage`. Identify users by the `sub` claim (`eip155:0x…` in lowercase, `solana:<address>`, the same on every network), not by `caip10`.
 - `onRemoteCreate` throws when the sync fails; a resolved promise marks the transaction as synced.
 - Verify webhook signatures over the raw body with a constant-time comparison.
 - Use a shared session and nonce store (Redis or a database) in production; the memory stores and the stateless demo profile are for development and demos.
