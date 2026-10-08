@@ -8,6 +8,8 @@ First and foremost, thank you for considering contributing to the TUWA ecosystem
     - [Reporting Bugs](#reporting-bugs)
     - [Suggesting Enhancements](#suggesting-enhancements)
     - [Submitting Pull Requests](#submitting-pull-requests)
+- [Security Issues](#security-issues)
+- [Questions](#questions)
 - [General Development Workflow](#general-development-workflow)
 - [Pull Request Process](#pull-request-process)
 
@@ -39,9 +41,17 @@ Have an idea for a new feature or an improvement? We'd love to hear it!
 
 We love pull requests! If you're ready to contribute code, please follow the general workflow and process outlined below.
 
+## Security Issues
+
+Please **do not open a public issue** for a vulnerability. Email [security@tuwa.io](mailto:security@tuwa.io) with the affected package or service, its version, the steps to reproduce it and the impact you see. You will get a reply there, and the fix is published before the details are.
+
+## Questions
+
+For questions about using TUWA, read the [documentation](https://docs.tuwa.io) first, then ask on [Discord](https://discord.gg/9dN8tkTk7u) or [Telegram](https://t.me/tuwa_io). Issues are for bugs, feature requests and documentation problems.
+
 ## General Development Workflow
 
-Because our ecosystem consists of multiple projects, the specific setup steps (like installing dependencies or running the project) can vary. **Always refer to the `README.md` file of the specific repository you are working on for detailed setup instructions.**
+Because our ecosystem consists of multiple projects, the specific setup steps (like installing dependencies or running the project) can vary. **Always refer to the `README.md` file of the specific repository you are working on for detailed setup instructions.** The `AGENTS.md` of each repository describes its stack, its structure and the checks to run before a pull request (the same rules apply to people and to AI coding agents).
 
 The general workflow, however, is consistent:
 
@@ -60,11 +70,13 @@ The general workflow, however, is consistent:
     git checkout -b feat/my-amazing-feature
     ```
 2.  **Make your changes** in the code.
-3.  **Ensure your code follows our style guidelines.** Most of our repositories provide a linting and formatting script.
+3.  **Run the checks of the repository.** Every repository has lint and format scripts, and most have tests and a build; its `AGENTS.md` lists what to run.
     ```bash
-    # Example commands, check the specific repo's package.json
-    pnpm format
+    # Example commands, check the specific repo's package.json and AGENTS.md
     pnpm lint
+    pnpm format
+    pnpm test
+    pnpm build
     ```
 4.  **Commit your changes.** We follow the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) specification. This is mandatory as it helps us automate releases and generate changelogs.
 
@@ -72,7 +84,7 @@ The general workflow, however, is consistent:
     ```bash
     feat(ui): add retry button to TrackingTxModal
     ```
-    Common types include: `feat`, `fix`, `docs`, `chore`.
+    Common types include: `feat`, `fix`, `docs`, `chore`. `release-please` reads them: in a `0.x` package a `feat` releases a minor version and a `fix` a patch version, while `docs` and `chore` release nothing.
 
 5.  **Push your branch** to your fork on GitHub:
     ```bash

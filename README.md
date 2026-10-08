@@ -1,47 +1,43 @@
 # TUWA Workflows & Community Standards
 
 <div align="center">
-  <img src="https://raw.githubusercontent.com/TuwaIO/workflows/main/preview/tuwa_preview.gif" alt="TUWA Preview Demo" width="100%" max-width="800px" />
+  <img src="https://raw.githubusercontent.com/TuwaIO/workflows/main/preview/tuwa_preview.gif" alt="TUWA preview: wallet connection, sign-in and transaction tracking" width="100%" />
 </div>
 
 ## About This Repository
 
-This repository is the single source of truth for CI/CD automation and community standards across the entire TUWA ecosystem. Its purpose is to centralize logic, enforce consistency, and make it easy to manage and update development processes for all projects.
-
-By using the reusable components from this repository, we follow the **DRY (Don't Repeat Yourself)** principle, saving time and reducing errors.
+The shared CI/CD workflows, community guidelines, legal documents and brand assets of every TUWA repository. Projects call the workflows from here instead of copying them, so a fix to the release process lands everywhere at once.
 
 ---
 
 ## What's Inside?
 
-* **`TUWA_AGENTS.md`**: Master Integration Standard and Single Source of Truth for building dApps and configuring AI agents across the TUWA ecosystem.
-* **`.github/workflows/`**: Reusable GitHub Actions workflows for automated alpha releases and stable NPM package publishing.
-* **`EMAIL_ROUTING.md`**: Centralized email routing manifest establishing official contact addresses under the `@tuwa.io` domain.
-* **`Donation.md`**: Multi-chain cryptocurrency donation manifest supporting open-source development.
-* **`CONTRIBUTING.md` & `CODE_OF_CONDUCT.md`**: Universal community standards, code guidelines, and PR procedures.
-* **`docs/`**: Official legal policies (Privacy Policy, Terms of Service, Cookie Policy) with automated headless PDF generation tooling.
-* **`preview/`**: Shared ecosystem visual assets, logos, and architecture diagrams.
+* **`TUWA_AGENTS.md`**: the integration guide for AI coding agents that build apps with TUWA: packages, setup and the rules that keep generated code correct.
+* **`.github/workflows/`**: reusable GitHub Actions workflows that publish alpha and stable versions of the `@tuwaio` packages to npm.
+* **`CONTRIBUTING.md` & `CODE_OF_CONDUCT.md`**: how to report bugs, suggest features and open pull requests in any TUWA repository.
+* **`EMAIL_ROUTING.md`**: the official `@tuwa.io` contact addresses and where each one is used.
+* **`Donation.md`**: how to support TUWA with a crypto donation.
+* **`docs/`**: the Privacy Policy, Terms of Service and Cookie Policy, with the script that renders them to PDF.
+* **`preview/`**: logos, preview images and the posts used across the TUWA sites and social accounts.
 
 ---
 
 ## Available Workflows
 
-Here is a list of the reusable workflows available in this repository:
-
 | Workflow File | Description |
 |---|---|
-| `reusable-alpha-release.yml` | Publishes an alpha version to NPM. Triggered by pushes to `dev`, `fix`, and `feat` branches. |
-| `reusable-stable-publish.yml`| Publishes a stable version to NPM after a release is created by `release-please`. |
+| `reusable-alpha-release.yml` | Publishes an alpha version of the changed packages with `semantic-release`. The calling repository runs it on pushes to its `dev/**`, `fix/**` and `feat/**` branches and provides `alpha.release.config.js`. |
+| `reusable-stable-publish.yml` | Publishes the stable versions of the `@tuwaio/*` packages after `release-please` creates a release on `main`. |
+
+Both workflows publish with **npm trusted publishing** (OIDC) and provenance: there is no `NPM_TOKEN` secret, the calling job grants `id-token: write`, and each package is set up on npm for trusted publishing from its repository.
 
 ---
 
 ## How to Use
 
-### Using Reusable Workflows
+### Alpha releases
 
-To use a workflow from this repository, you call it from a workflow file in your own project using the `uses` keyword.
-
-**Example:** To implement the alpha release process, create a `.github/workflows/alpha-release.yml` file in your project with the following content:
+Create `.github/workflows/alpha-release.yml` in your project:
 
 ```yaml
 name: Alpha Release
@@ -55,20 +51,60 @@ on:
 
 jobs:
   call-alpha-release:
-    # This line calls the reusable workflow
+    permissions:
+      id-token: write
+      contents: write
+      issues: write
+      pull-requests: write
     uses: TuwaIO/workflows/.github/workflows/reusable-alpha-release.yml@main
-
-    # This line is crucial for passing secrets like GITHUB_TOKEN and NPM_TOKEN
     secrets: inherit
 ```
 
-**Note on Versioning:** The `@main` at the end of the `uses` path means you will always use the latest version from the `main` branch. For production stability, it is recommended to pin to a specific version tag, like `@v1.0.0`, once you create releases in this repository.
+### Stable releases
+
+Run `release-please` on `main` and call the publish workflow when it creates a release:
+
+```yaml
+name: Release Please & Publish
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    outputs:
+      releases_created: ${{ steps.release.outputs.releases_created }}
+    steps:
+      - uses: googleapis/release-please-action@v4
+        id: release
+        with:
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+          include-component-in-tag: true
+
+  call-stable-publish:
+    needs: release-please
+    if: ${{ needs.release-please.outputs.releases_created == 'true' }}
+    permissions:
+      id-token: write
+      contents: write
+    uses: TuwaIO/workflows/.github/workflows/reusable-stable-publish.yml@main
+    secrets: inherit
+```
+
+`@main` always uses the latest version of a workflow. This repository has no release tags yet; pin a commit SHA instead of `@main` if a project needs a frozen version.
 
 ### Linking to Community Files
 
-Instead of duplicating `CONTRIBUTING.md` in every repository, you can create a small file in your project that links here.
-
-**Example `CONTRIBUTING.md` in your project:**
+Instead of copying `CONTRIBUTING.md` into every repository, add a short file that links here:
 
 ```markdown
 # Contribution Guidelines
@@ -76,3 +112,5 @@ Instead of duplicating `CONTRIBUTING.md` in every repository, you can create a s
 This project follows the central TUWA contribution guidelines. Please read them here:
 [TUWA Contribution Guidelines](https://github.com/TuwaIO/workflows/blob/main/CONTRIBUTING.md)
 ```
+
+The issue templates and the Code of Conduct of every repository come from [`TuwaIO/.github`](https://github.com/TuwaIO/.github).

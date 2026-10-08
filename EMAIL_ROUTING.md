@@ -44,12 +44,14 @@ All official communications, documentation, repository meta files, and applicati
 
 | Repository | Primary Components | Contact Endpoints Used |
 | :--- | :--- | :--- |
-| **`workflows`** | Legal policies, PDF generator, Code of Conduct | `admin@tuwa.io`, `hello@tuwa.io` |
+| **`workflows`** | Legal policies, PDF generator, Code of Conduct, contribution guidelines | `admin@tuwa.io`, `hello@tuwa.io` |
+| **`.github`** | Organization profile, issue templates, default Code of Conduct | `hello@tuwa.io`, `security@tuwa.io` |
 | **`Landing/website`** | Official landing site, team profiles, footer | `hello@tuwa.io`, `partners@tuwa.io` |
 | **`quasar`** | Dashboard, NestJS server, monitoring, billing | `support@tuwa.io`, `admin@tuwa.io`, `noreply@mail.tuwa.io` |
-| **`docs` / `sdk`** | Technical documentation, SDK guides, APIs | `support@tuwa.io` |
+| **`quasar-community`** | Self-hosted Community Edition (generated from `quasar`) | `support@tuwa.io` |
+| **`docs` / `sdk` / `cosmos-playground`** | Technical documentation, SDK guides, APIs, starter templates | `support@tuwa.io` |
 | **`nova-uikit` / `orbit` / `pulsar-core` / `satellite-connect` / `siwx`** | Headless core packages & UI components | `hello@tuwa.io`, `support@tuwa.io` |
 
 ---
 
-*Last Updated: August 2026 — TUWA Architecture Team*
+*Last Updated: October 2026*

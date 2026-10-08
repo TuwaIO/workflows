@@ -1,10 +1,8 @@
-## Support the TUWA Ecosystem 🤝
+## Support TUWA 🤝
 
-Thank you for considering supporting the development of **Orbit**, **SIWX**, **Satellite**, **Pulsar**, **Nova UI Kit**, **Quasar**, and **SDK**!
+Thank you for considering supporting **Orbit Utils**, **SIWX**, **Satellite Connect**, **Pulsar**, **Nova UI Kit**, **Quasar** and the **TUWA SDK**!
 
-Our mission is to build the "Pure Web3" infrastructure—tools that guarantee sovereignty, self-custody, and technical honesty. We are creating an ecosystem where developers don't have to choose between convenience and control.
-
-Your support allows us to remain independent, dedicate more time to maintaining these open-source libraries, and accelerate the roadmap towards a fully decentralized future. Every contribution, no matter the size, fuels this revolution.
+TUWA is an open-source (Apache-2.0) toolkit for self-custodial apps on EVM and Solana, built in the open by [Oleksandr Tkach](https://tuwa.io/team/oleksandr) without outside funding. Your support pays for the time to maintain the packages, answer questions and ship what is next on the [roadmap](https://tuwa.io/#roadmap), starting with native crypto payments in Quasar. Every contribution helps, whatever the size.
 
 ---
 
@@ -12,7 +10,7 @@ Your support allows us to remain independent, dedicate more time to maintaining 
 
 ### 🪙 Cryptocurrency Donations
 
-We gratefully accept direct contributions across major networks.
+Send a donation directly on any of these networks.
 
 #### 🔷 EVM Networks (Ethereum, Base, Arbitrum, Optimism, Polygon, BSC)
 
@@ -48,4 +46,4 @@ UQC7LdKT59QoDX1UGLJgDDy0Y6jV-elHYsPCe_iYvJFxCTMd
 
 ---
 
-**Thank you for building the future with us. It truly means the world! 🚀**
+**Thank you for supporting open-source Web3 tooling! 🚀**
