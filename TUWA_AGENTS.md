@@ -24,7 +24,7 @@ TUWA is a headless-first, modular Web3 stack for EVM and Solana: state and logic
 
 Dependencies point one way: Orbit ← SIWX, Satellite Connect, Pulsar ← Nova UI Kit ← TUWA SDK. A package never imports a project above it. Quasar is a service, reached only through `@tuwaio/quasar-sdk` on your server.
 
-Step-by-step guides (the long form of this file): [Full-Stack React](https://docs.tuwa.io/guides/full-stack-react), [Quasar transaction sync](https://docs.tuwa.io/guides/quasar-transaction-sync), [React transaction tracking](https://docs.tuwa.io/guides/react-transaction-tracking) (packages without the SDK), [Multi-chain authentication](https://docs.tuwa.io/guides/multi-chain-auth-siwx-caip122), [External auth with SIWX JWT](https://docs.tuwa.io/guides/siwx-jwt-external-auth).
+Step-by-step guides (the long form of this file): [Full-Stack React](https://docs.tuwa.io/guides/full-stack-react), [Quasar transaction sync](https://docs.tuwa.io/guides/quasar-transaction-sync), [React transaction tracking](https://docs.tuwa.io/guides/react-transaction-tracking) (packages without the SDK), [Multi-chain authentication](https://docs.tuwa.io/guides/multi-chain-auth-siwx-caip122), [External auth with SIWX JWT](https://docs.tuwa.io/guides/siwx-jwt-external-auth), [Supabase RLS with SIWX](https://docs.tuwa.io/guides/siwx-supabase).
 
 ---
 
@@ -142,6 +142,8 @@ export const { GET, POST, DELETE } = createSiwxApiHandler({
 Demos without a database use `createStatelessDemoSiwxHandler({ signingSecret, policy })` from the same subpath instead (a signed cookie; sessions cannot be revoked) and read the session with `getSiwxServerSession({ cookieSource, signingSecret })`, as the `nextjs-evm` and `nextjs-tuwa-quasar` templates do.
 
 **Smart contract wallets and JWT for external auth.** EOA wallets sign in on any chain without more setup. Smart contract wallets (Safe, Coinbase Smart Wallet / Base Account, ERC-4337 accounts) need a viem client for the chain they sign on, in `verifyOptions.publicClient`: deployed ones are checked with EIP-1271, not yet deployed ones with ERC-6492. To hand the sign-in to a service that accepts only a JWT (Coinbase CDP custom authentication, other embedded wallet providers, your own services), add the `jwt` option: it serves `GET /api/siwx/token` (a JWT for the session cookie, 10 minutes by default) and `GET /api/siwx/jwks` (the public keys). Create the key once with `generateSiwxJwtKey()` from `@tuwaio/sdk/siwx/server` and keep the private JWK in `SIWX_JWT_PRIVATE_KEY`. The walkthrough with Coinbase CDP is the [External auth guide](https://docs.tuwa.io/guides/siwx-jwt-external-auth).
+
+**SIWX with Supabase.** Supabase accepts the SIWX JWT as third-party auth: register `GET /api/siwx/jwks` with the Supabase Management API (`jwks_url`), set `audience: 'authenticated'` and `claims: () => ({ role: 'authenticated' })` in the `jwt` option (without `role` the request runs as `anon`), and pass the token to supabase-js with `createClient(url, key, { accessToken })`. In RLS policies compare `(select auth.jwt() ->> 'sub')`, the wallet (`solana:<address>`, `eip155:0x…` in lowercase); never `auth.uid()`, which casts `sub` to a UUID and fails. New Supabase tables also need an explicit `grant … to authenticated`. Details: the [Supabase RLS guide](https://docs.tuwa.io/guides/siwx-supabase).
 
 ```ts
 // src/app/api/siwx/[...siwx]/route.ts (EVM, with smart contract wallets and JWT)
