@@ -837,7 +837,7 @@ Source: [cosmos-playground/examples](https://github.com/TuwaIO/cosmos-playground
 
 - Keep secrets on the server: `QUASAR_SECRET_KEY`, `QUASAR_WEBHOOK_SECRET` and the SIWX signing secret. Only `NEXT_PUBLIC_*` and `VITE_*` values reach the browser.
 - Server code reads the session with `getSiwxServerSession` from the cookie and checks it with `isSessionMatchingTarget` before acting for a wallet. Never accept a session object from the browser.
-- Keep `SIWX_JWT_PRIVATE_KEY` on the server. Fetch SIWX JWTs from `/api/siwx/token` when a service needs one and never store them in `localStorage`. Identify users by the `sub` claim (`eip155:0x…` in lowercase, `solana:<address>`, the same on every network), not by `caip10`.
+- Keep `SIWX_JWT_PRIVATE_KEY` on the server. Fetch SIWX JWTs from `/api/siwx/token` when a service needs one and never store them in `localStorage`. Identify users by the `sub` claim, not by `caip10`: `eip155:0x…` in lowercase or `solana:<address>` for wallets that sign with their own key (the same on every network), `eip155:<chain>:0x…` for smart contract wallets, whose owners differ per chain.
 - `onRemoteCreate` throws when the sync fails; a resolved promise marks the transaction as synced.
 - Verify webhook signatures over the raw body with a constant-time comparison.
 - Use a shared session and nonce store (Redis or a database) in production; the memory stores and the stateless demo profile are for development and demos.
