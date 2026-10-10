@@ -38,7 +38,7 @@ Step-by-step guides (the long form of this file): [Full-Stack React](https://doc
 | Styling     | Tailwind CSS v4 (optional: the Nova stylesheets are precompiled)                                                   |
 | State       | `zustand` 5, `immer` 11                                                                                            |
 | EVM         | `@wagmi/core` 3 and `viem` 2 (no `wagmi` React package and no `WagmiProvider`)                                     |
-| Solana      | `@solana/kit` 8.2+, `@wallet-standard/*`, `@solana/react` for the transaction signer                               |
+| Solana      | `@solana/kit` 8.2+ and Wallet Standard (`@wallet-standard/*`)                                                      |
 
 ---
 
@@ -51,12 +51,13 @@ Step-by-step guides (the long form of this file): [Full-Stack React](https://doc
 pnpm add @tuwaio/sdk @tuwaio/evm-sdk @wagmi/core viem
 
 # Solana
-pnpm add @tuwaio/sdk @tuwaio/solana-sdk @solana/kit @solana/react @wallet-standard/react \
-  @wallet-standard/app @wallet-standard/base @wallet-standard/features @wallet-standard/ui @wallet-standard/ui-registry
+pnpm add @tuwaio/sdk @tuwaio/solana-sdk @solana/kit
 
 # Quasar sync (server)
 pnpm add @tuwaio/quasar-sdk
 ```
+
+pnpm (8 and later), npm (7 and later) and Bun also install the Wallet Standard peers of `@tuwaio/solana-sdk` (`@wallet-standard/app`, `base`, `features`, `react`, `ui` and `ui-registry`); with Yarn, add them to the command.
 
 For wagmi connectors other than `injected`, install their SDKs too: `@wagmi/connectors` with `@walletconnect/ethereum-provider` (WalletConnect) and `@safe-global/safe-apps-provider` `@safe-global/safe-apps-sdk` (Safe{Wallet}).
 
@@ -385,41 +386,40 @@ export function IncrementButton() {
 }
 ```
 
-**A tracked Solana transaction.** The signer comes from `@solana/react` for the Wallet Standard account of the connection, so it lives in a component rendered only while a Solana wallet is connected. Pulsar checks the cluster (`desiredChainID`) but cannot switch it. The instruction comes from the Codama client of your program ([§8](#8-solana-programs-codama)).
+**A tracked Solana transaction.** The signer is `createSolanaTransactionSendingSigner` of `@tuwaio/solana-sdk/orbit`: it asks the wallet of the connected Wallet Standard account to sign and send the transaction. Create it inside `actionFunction`, which runs after Pulsar checks the cluster (`desiredChainID`); Pulsar cannot switch the cluster. The instruction comes from the Codama client of your program ([§8](#8-solana-programs-codama)).
 
 ```tsx
 // src/components/SolanaTxButton.tsx
 'use client';
 
 import type { Instruction } from '@solana/kit';
-import { useWalletAccountTransactionSendingSigner } from '@solana/react';
 import { TxActionButton } from '@tuwaio/sdk/nova-transactions';
 import { OrbitAdapter } from '@tuwaio/sdk/orbit';
 import { useSatelliteConnectStore } from '@tuwaio/sdk/satellite';
-import { createSolanaClientWithCache } from '@tuwaio/solana-sdk/orbit';
+import { createSolanaClientWithCache, createSolanaTransactionSendingSigner } from '@tuwaio/solana-sdk/orbit';
 import { signAndSendSolanaTx } from '@tuwaio/solana-sdk/pulsar';
 import type { SolanaConnection } from '@tuwaio/solana-sdk/satellite';
 
 import { usePulsarStore } from '@/hooks/pulsarStore';
 import { TxType } from '@/transactions';
 
-type WalletAccount = NonNullable<SolanaConnection['connectedAccount']>;
-
-function SendButton(props: { account: WalletAccount; connection: SolanaConnection; instruction: Instruction }) {
-  const { account, connection, instruction } = props;
+export function SolanaTxButton({ instruction }: { instruction: Instruction }) {
+  const connection = useSatelliteConnectStore((state) => state.activeConnection) as SolanaConnection | undefined;
   const executeTxAction = usePulsarStore((state) => state.executeTxAction);
   const transactionsPool = usePulsarStore((state) => state.transactionsPool);
   const getLastTxKey = usePulsarStore((state) => state.getLastTxKey);
-  // Satellite keeps the cluster moniker ('devnet', 'mainnet', …); Wallet Standard calls take it as `solana:${cluster}`
+
+  const account = connection?.connectedAccount;
+  if (!connection?.isConnected || !account) return null;
+  // Satellite keeps the cluster moniker ('devnet', 'mainnet', …)
   const cluster = String(connection.chainId);
-  const signer = useWalletAccountTransactionSendingSigner(account, `solana:${cluster}`);
 
   const send = () =>
     executeTxAction({
       actionFunction: () =>
         signAndSendSolanaTx({
           client: createSolanaClientWithCache({ rpcUrlOrMoniker: connection.rpcURL }),
-          signer,
+          signer: createSolanaTransactionSendingSigner(account, cluster),
           instruction,
         }),
       params: {
@@ -444,12 +444,6 @@ function SendButton(props: { account: WalletAccount; connection: SolanaConnectio
       Send
     </TxActionButton>
   );
-}
-
-export function SolanaTxButton({ instruction }: { instruction: Instruction }) {
-  const connection = useSatelliteConnectStore((state) => state.activeConnection) as SolanaConnection | undefined;
-  if (!connection?.isConnected || !connection.connectedAccount) return null;
-  return <SendButton account={connection.connectedAccount} connection={connection} instruction={instruction} />;
 }
 ```
 
@@ -821,6 +815,7 @@ Source: [cosmos-playground/examples](https://github.com/TuwaIO/cosmos-playground
 **Dependencies**
 
 - Use `viem` and `@wagmi/core` for EVM, `@solana/kit` and Wallet Standard for Solana.
+- `@solana/react` is not needed: `createSolanaTransactionSendingSigner` of `@tuwaio/solana-sdk/orbit` is the transaction signer of a connected account.
 - Never add `ethers`, `web3.js`, legacy `@solana/web3.js` classes, `gill`, the `siwe` package or `@tuwaio/satellite-siwe-next-auth` (deprecated; sign-in is `@tuwaio/siwx-*`). Do not add RainbowKit, ConnectKit or Reown AppKit as the connect modal: Nova Connect is the wallet UI.
 - `wagmi` (React), `WagmiProvider` and `@tanstack/react-query` are not needed: Satellite Connect and Pulsar use `@wagmi/core` actions.
 - Install only the add-on of the networks the app uses; do not import `@tuwaio/solana-sdk` in an EVM-only app or the reverse.
@@ -852,6 +847,7 @@ Source: [cosmos-playground/examples](https://github.com/TuwaIO/cosmos-playground
 - Blockchain writes go through `executeTxAction` of the Pulsar store; read their status from the store with selectors, not from local `useState`.
 - Select single fields from Zustand stores (`useStore((state) => state.field)`), never the whole state.
 - Type each transaction: a union of `Transaction & { type; payload }` as the generic of `createPulsarStore`.
+- A Solana transaction stays pending until it is finalized; `confirmationStatus` (`processed`, `confirmed`, `finalized`) shows its progress before that, and Nova shows `confirmed` as its own step.
 - Keep `title` at most 100 characters, `description` at most 300 and `payload` under 10 KB: Pulsar rejects larger metadata with `PulsarTransactionValidationError`.
 
 **Styling and code**
