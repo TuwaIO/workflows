@@ -800,7 +800,7 @@ npx @tuwaio/create-cosmos-playground
 | --------------------- | -------------------- | ------------------------------------------------------------------------------------------------- |
 | `nextjs-tuwa`         | Next.js, SDK         | EVM and Solana: wallet connection, tracked transactions (standard and ERC-4337), a Codama program |
 | `nextjs-evm`          | Next.js, SDK         | EVM only, with SIWX sign-in                                                                       |
-| `nextjs-solana`       | Next.js, SDK         | Solana only, with a Codama program                                                                |
+| `nextjs-solana`       | Next.js, SDK         | Solana only, with SIWX sign-in and a Codama program                                               |
 | `vite-tuwa`           | Vite, SDK            | `nextjs-tuwa` as a client-side app                                                                |
 | `nextjs-tuwa-not-sdk` | Next.js, packages    | `nextjs-tuwa` on the packages one by one, plus the deprecated Gelato relay                        |
 | `custom-style`        | Vite, SDK            | EVM only, with every Nova component restyled                                                      |
