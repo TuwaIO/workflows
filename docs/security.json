@@ -1,0 +1,56 @@
+{
+  "title": "Security Policy",
+  "updated": "October 14, 2026",
+  "sections": [
+    {
+      "id": "what-we-promise-and-what-we-do-not",
+      "title": "What We Promise and What We Do Not"
+    },
+    {
+      "id": "scope",
+      "title": "Scope"
+    },
+    {
+      "id": "how-to-report",
+      "title": "How to Report"
+    },
+    {
+      "id": "rules-for-testing",
+      "title": "Rules for Testing"
+    },
+    {
+      "id": "safe-harbor",
+      "title": "Safe Harbor"
+    },
+    {
+      "id": "how-we-respond",
+      "title": "How We Respond"
+    },
+    {
+      "id": "rewards",
+      "title": "Rewards"
+    },
+    {
+      "id": "shared-responsibility",
+      "title": "Shared Responsibility"
+    },
+    {
+      "id": "what-we-do-to-stay-secure",
+      "title": "What We Do to Stay Secure"
+    },
+    {
+      "id": "incident-notifications",
+      "title": "Incident Notifications"
+    },
+    {
+      "id": "disclaimers",
+      "title": "Disclaimers"
+    },
+    {
+      "id": "contact",
+      "title": "Contact"
+    }
+  ],
+  "html": "<p>This Security Policy explains how to report a security vulnerability in the TUWA ecosystem, what you can expect from FOP Tkach Oleksandr (&quot;we,&quot; &quot;us,&quot; or &quot;our&quot;) when you do, and who is responsible for what. It covers our open-source npm packages, Quasar Cloud, Quasar Community Edition and Quasar Payments. We welcome reports from security researchers and users, and we will not take legal action against research done in good faith under this policy (Section 5).</p>\n<h2 id=\"what-we-promise-and-what-we-do-not\">1. What We Promise and What We Do Not</h2>\n<ul>\n<li><strong>We promise</strong> to answer reports within the times in Section 6, to keep you informed until the issue is resolved, not to pursue good-faith research (Section 5), and to thank you publicly if you wish.</li>\n<li><strong>We do not promise</strong> that our software or services are free of vulnerabilities, that we pay rewards (there is no bug bounty program, see Section 7), or that we fix versions that are no longer supported (Section 2).</li>\n</ul>\n<h2 id=\"scope\">2. Scope</h2>\n<p><strong>In scope:</strong></p>\n<ul>\n<li>The latest published versions of our npm packages (<code>@tuwaio/*</code>).</li>\n<li>Quasar Cloud: <a href=\"https://api.tuwa.io/\">api.tuwa.io</a> and the dashboard at <a href=\"https://quasar.tuwa.io/\">quasar.tuwa.io</a>.</li>\n<li>The code of Quasar Community Edition, latest minor version.</li>\n<li>Quasar Payments, from its release: the payment engine, the checkout API and checkout tokens, the hosted payment page (<code>/pay</code>), the EIP-3009 relayer, the ERC-7677 paymaster proxy, the ERC-7715 auto-charge collector, <code>payments.v1</code> webhooks and <code>verifyWebhook</code>, the payment ledger and issued documents, <code>@tuwaio/nova-payments</code> and <code>@tuwaio/quasar-sdk/checkout</code>.</li>\n</ul>\n<p>Examples that are always in scope: access to another organization&#39;s apps, transactions or keys; a forged or replayed webhook signature; a package that exposes a key or signs something the user did not confirm. From the release of Quasar Payments, also: a payment counted for another invoice or from another payer; a changed amount, asset, network or recipient of a quote; a bypass of AML screening; access to another person&#39;s invoice through its token or by guessing; a change to the ledger or a document that the hash-chain check does not detect; a charge above the limit or outside the period of a wallet permission; a relayer or paymaster that pays gas for someone else&#39;s calls.</p>\n<p><strong>Out of scope:</strong></p>\n<ul>\n<li>Quasar Community Edition installations run by others: please report to their operator (a vulnerability in the code of Community Edition itself is in scope).</li>\n<li>Third-party services, including wallets, RPC providers, WalletConnect, GoPlus, Chainalysis, Pimlico and other paymasters, Gelato and Resend. Please report to them directly.</li>\n<li>The content of sanctions lists, such as the OFAC list.</li>\n<li>Reports without a demonstrated impact, such as missing security headers, version banners or the absence of rate limits on non-sensitive pages.</li>\n<li>Social engineering and physical access.</li>\n</ul>\n<h2 id=\"how-to-report\">3. How to Report</h2>\n<p>Email <a href=\"mailto:security@tuwa.io\">security@tuwa.io</a> with:</p>\n<ul>\n<li>the package and version, or the service and route, that is affected;</li>\n<li>the steps to reproduce or a proof of concept;</li>\n<li>the impact you believe it has.</li>\n</ul>\n<p>Please do not disclose the vulnerability publicly until it is fixed, until a disclosure date we have agreed on, or, if we could not agree, until the written notice period in Section 6 has passed. Please do not send us personal data of others beyond what is needed to show the issue.</p>\n<h2 id=\"rules-for-testing\">4. Rules for Testing</h2>\n<ul>\n<li>Test only with your own accounts and apps, in test mode and on test networks. If a vulnerability cannot be demonstrated there, report the suspected issue without conducting unauthorized production testing.</li>\n<li>Do not access, change or move funds or data that are not yours. If you reach them by accident, stop, tell us, and delete what you obtained.</li>\n<li>No load testing, denial of service, spam, or automated scanning beyond the API rate limits.</li>\n<li>No social engineering or phishing of our team, our users or our providers.</li>\n<li>Follow the laws that apply to you.</li>\n</ul>\n<h2 id=\"safe-harbor\">5. Safe Harbor</h2>\n<p>If you make a good-faith effort to follow this policy, we consider your research authorized on systems we own and control, within the limits in Sections 2 and 4. We will work with you to understand and fix the issue, and we will not bring legal action or report you to law enforcement for that research. If a third party brings legal action against you for research that followed this policy, we will make it known that your research was authorized by us. This protection does not cover actions that break the rules in Section 4 or systems that are not ours; we cannot authorize activity on third-party systems.</p>\n<h2 id=\"how-we-respond\">6. How We Respond</h2>\n<ul>\n<li><strong>Acknowledgement:</strong> within 3 business days.</li>\n<li><strong>Assessment:</strong> within 7 business days, with our view of severity.</li>\n<li><strong>Updates:</strong> at least every 14 days until the issue is resolved.</li>\n<li><strong>Fix targets</strong> by CVSS 4.0 severity: critical — 7 days, high — 30 days, medium — 90 days, low — when possible. Any threat to funds is treated as critical.</li>\n<li><strong>Disclosure:</strong> we aim to coordinate disclosure with you after a fix. If the risk to users requires action before a fix, we may agree with you on an earlier advisory that describes the risk and the steps users can take. If the issue remains unresolved 90 days after the report, we will discuss the disclosure date and risk-mitigation steps with you; if we cannot agree, either of us may publish after giving the other 30 days&#39; written notice, without details that would let others exploit the issue. For our packages and Quasar Community Edition we publish a GitHub Security Advisory and request a CVE where appropriate. If you wish, we credit you in the advisory.</li>\n</ul>\n<h2 id=\"rewards\">7. Rewards</h2>\n<p>This policy does not promise rewards, and we do not run a bug bounty program. If we start one, it will have its own terms with the amounts. Any reward would be paid only for reports that follow this policy, never to persons under sanctions, and the recipient is responsible for their own taxes.</p>\n<h2 id=\"shared-responsibility\">8. Shared Responsibility</h2>\n<ul>\n<li><strong>We</strong> are responsible for the code of our packages and of Quasar Community Edition, and for operating Quasar Cloud.</li>\n<li><strong>Quasar Cloud customers</strong> are responsible for their API keys, webhook secrets, the provider keys and RPC endpoints they set up, and the access of their team members; from the release of Quasar Payments, also for their recipient addresses, AML and gasless settings.</li>\n<li><strong>Operators of Quasar Community Edition</strong> are responsible for their deployment, updates, secrets, RPC providers, backups and infrastructure.</li>\n<li><strong>Buyers and users</strong> are responsible for their wallets and keys, and for checking what they sign.</li>\n<li><strong>Third-party services</strong> are responsible for their own security.</li>\n</ul>\n<p>TUWA is non-custodial: we never hold your private keys or funds, and we cannot reverse a transaction on a blockchain.</p>\n<h2 id=\"what-we-do-to-stay-secure\">9. What We Do to Stay Secure</h2>\n<p>We keep dependencies up to date, publish npm releases with provenance, require two-factor authentication and least-privilege access in our organization, encrypt stored secrets, keep an append-only, hash-chained ledger for Quasar Payments, monitor our services and show their status at <a href=\"https://status.tuwa.io/\">status.tuwa.io</a>, and follow an incident response plan. This describes our practices; it is not a guarantee.</p>\n<h2 id=\"incident-notifications\">10. Incident Notifications</h2>\n<p>If a security incident affects Quasar Cloud customers, we notify them without undue delay. If personal data is breached, we notify the supervisory authority and the affected people as data protection law requires. Under the GDPR, where authority notification is required, it must be made without undue delay and, where feasible, within 72 hours after becoming aware of the breach; communication to individuals is required without undue delay where the breach is likely to result in a high risk to their rights and freedoms, subject to statutory exceptions (Regulation (EU) 2016/679, Articles 33 and 34). Outages are shown at <a href=\"https://status.tuwa.io/\">status.tuwa.io</a>.</p>\n<h2 id=\"disclaimers\">11. Disclaimers</h2>\n<p>This policy is not a contract and not a warranty. Our software is provided &quot;as is&quot; under its license (Apache-2.0 for our packages and Quasar Community Edition, MIT-0 for the starter templates). Limitation of liability and governing law are set out in our <a href=\"https://tuwa.io/terms\">Terms of Service</a>. We may change this policy; the date of the current version is at the top.</p>\n<h2 id=\"contact\">12. Contact</h2>\n<p>Report vulnerabilities to <a href=\"mailto:security@tuwa.io\">security@tuwa.io</a>. For other questions about this policy, please contact us at <a href=\"mailto:admin@tuwa.io\">admin@tuwa.io</a>.</p>\n",
+  "sourceHash": "0a581b7b9aea07997b1e7862dfdc7d316288e8febbf51dbd1bd739dd58080efa"
+}
