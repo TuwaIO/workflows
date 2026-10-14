@@ -27,10 +27,10 @@ This list was checked against our sites and code. It covers the storage that our
 
 | Name | Type | Where | Written | Purpose | Duration |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `payload-token` | Cookie (HttpOnly) | Quasar dashboards | When you sign in | Keeps you signed in | 24 hours |
-| `siwx-session` | Cookie (HttpOnly) | Quasar dashboards | When you sign in with a wallet | Keeps a wallet sign-in (SIWX) | 24 hours |
-| `passkey_challenge` | Cookie (HttpOnly) | Quasar dashboards | When you start a passkey sign-in or registration | Protects that passkey operation | 5 minutes |
-| `siwx-session-v2` | Cookie (HttpOnly) | demo.tuwa.io | When you sign in with a wallet | Keeps a wallet sign-in (SIWX) | 30 minutes |
+| `payload-token` | Cookie (HttpOnly) | Quasar dashboards | When you sign in | Keeps you signed in | 24 hours |
+| `siwx-session` | Cookie (HttpOnly) | Quasar dashboards | When you sign in with a wallet | Keeps a wallet sign-in (SIWX) | 24 hours |
+| `passkey_challenge` | Cookie (HttpOnly) | Quasar dashboards | When you start a passkey sign-in or registration | Protects that passkey operation | 5 minutes |
+| `siwx-session-v2` | Cookie (HttpOnly) | demo.tuwa.io | When you sign in with a wallet | Keeps a wallet sign-in (SIWX) | 30 minutes |
 | `theme` | Local Storage | tuwa.io, the documentation sites and the Quasar dashboards | When you switch the theme | Remembers the light or dark theme you chose | Until you clear it |
 | `tuwa-guide-network` | Local Storage | docs.tuwa.io | When you pick a tab in a guide | Remembers the EVM or Solana tab you chose | Until you clear it |
 | `quasar:auth_method` | Local Storage | Quasar dashboards | When you sign in | Remembers whether you signed in with a wallet, so that disconnecting that wallet signs you out | Until you sign out or clear it |
