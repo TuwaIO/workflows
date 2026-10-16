@@ -10,7 +10,10 @@ const files = [
   { name: 'cookie', out: 'cookie' },
   { name: 'refund', out: 'refund' },
   { name: 'security', out: 'security' },
-  { name: 'dpa', out: 'dpa' }
+  { name: 'dpa', out: 'dpa' },
+  { name: 'scc-module-2', out: 'scc-module-2' },
+  { name: 'scc-module-3', out: 'scc-module-3' },
+  { name: 'transfer-assessment', out: 'transfer-assessment' }
 ];
 
 // A document with an open placeholder is not published: the old PDF and page stay until the text is complete
