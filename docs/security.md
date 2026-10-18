@@ -1,5 +1,5 @@
 # Security Policy
-Last Updated: October 14, 2026
+Last Updated: October 16, 2026
 
 This Security Policy explains how to report a security vulnerability in the TUWA ecosystem, what you can expect from FOP Tkach Oleksandr ("we," "us," or "our") when you do, and who is responsible for what. It covers our open-source npm packages, Quasar Cloud, Quasar Community Edition and Quasar Payments. We welcome reports from security researchers and users, and we will not take legal action against research done in good faith under this policy (Section 5).
 
@@ -61,10 +61,10 @@ This policy does not promise rewards, and we do not run a bug bounty program. If
 TUWA is non-custodial: we never hold your private keys or funds, and we cannot reverse a transaction on a blockchain.
 
 ## 9. What We Do to Stay Secure
-We keep dependencies up to date, publish npm releases with provenance, require two-factor authentication and least-privilege access in our organization, encrypt stored secrets, keep an append-only, hash-chained ledger for Quasar Payments, monitor our services and show their status at [status.tuwa.io](https://status.tuwa.io/), and follow an incident response plan. This describes our practices; it is not a guarantee.
+We keep dependencies up to date, publish npm releases with provenance, require two-factor authentication and least-privilege access in our organization, encrypt stored secrets, keep an append-only, hash-chained ledger for Quasar Payments, monitor our services and show their status at [tuwa.io/status](https://tuwa.io/status), and follow an incident response plan. This describes our practices; it is not a guarantee.
 
 ## 10. Incident Notifications
-If a security incident affects Quasar Cloud customers, we notify them without undue delay. If personal data is breached, we notify the supervisory authority and the affected people as data protection law requires. Under the GDPR, where authority notification is required, it must be made without undue delay and, where feasible, within 72 hours after becoming aware of the breach; communication to individuals is required without undue delay where the breach is likely to result in a high risk to their rights and freedoms, subject to statutory exceptions (Regulation (EU) 2016/679, Articles 33 and 34). Outages are shown at [status.tuwa.io](https://status.tuwa.io/).
+If a security incident affects Quasar Cloud customers, we notify them without undue delay. If personal data is breached, we notify the supervisory authority and the affected people as data protection law requires. Under the GDPR, where authority notification is required, it must be made without undue delay and, where feasible, within 72 hours after becoming aware of the breach; communication to individuals is required without undue delay where the breach is likely to result in a high risk to their rights and freedoms, subject to statutory exceptions (Regulation (EU) 2016/679, Articles 33 and 34). Outages are shown at [tuwa.io/status](https://tuwa.io/status).
 
 ## 11. Disclaimers
 This policy is not a contract and not a warranty. Our software is provided "as is" under its license (Apache-2.0 for our packages and Quasar Community Edition, MIT-0 for the starter templates). Limitation of liability and governing law are set out in our [Terms of Service](https://tuwa.io/terms). We may change this policy; the date of the current version is at the top.

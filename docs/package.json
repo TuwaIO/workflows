@@ -1,5 +1,7 @@
 {
   "scripts": {
+    "generate": "node generate_pdf.js",
+    "generate:force": "node generate_pdf.js --force",
     "generate_pdf": "node generate_pdf.js"
   },
   "dependencies": {

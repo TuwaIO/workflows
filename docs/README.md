@@ -25,7 +25,15 @@ npm install
 5. Run the script to transform the Markdown files into PDFs and page data:
 
 ```bash
-node generate_pdf.js
+npm run generate
 ```
+
+It regenerates only the documents whose text changed (and sets their "Last Updated" date). To regenerate every document, for example after a change of the layout in `generate_pdf.js`, run:
+
+```bash
+npm run generate:force
+```
+
+Commit the generated files only when no document has a `[TODO]` left: the script reports each one and exits with an error.
 
 The script regenerates only the documents whose text changed since the last run (it compares the text with the `sourceHash` saved in the JSON) and sets their `Last Updated` date to today. Add `--force` to regenerate every document; dates still change only where the text changed. The PDF styles keep a heading with its text and never split a list item, a table row or a quote between pages.
