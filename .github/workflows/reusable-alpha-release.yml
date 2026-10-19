@@ -23,11 +23,15 @@ jobs:
           fetch-tags: true
           token: ${{ secrets.GITHUB_TOKEN }}
 
+      # A merge, not a rebase: feature branches take main in with merge commits, and a rebase drops them and replays
+      # every branch commit on main again, conflicts included. A branch that already contains main stays as it is;
+      # one behind main gets a merge commit on top of the remote branch, which semantic-release can still publish from
+      # (its push check passes; it pushes only the tag).
       - name: Synchronize branch with main
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          git pull origin main --rebase
+          git pull origin main --no-rebase --no-edit
 
       - name: Setup PNPM
         uses: pnpm/action-setup@v4
