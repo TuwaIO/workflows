@@ -3,7 +3,7 @@
 > Context for AI coding agents that build apps with TUWA. Copy this file into the `AGENTS.md` (or `CLAUDE.md`, `.cursorrules`) of your app, or point the agent to its raw URL: `https://raw.githubusercontent.com/TuwaIO/workflows/main/TUWA_AGENTS.md`.
 > The maintainers of the TUWA packages follow the `AGENTS.md` of each repository instead.
 
-Every code block below compiles against the current releases (`@tuwaio/sdk` 0.4, Nova UI Kit 0.8, Pulsar 0.9, Satellite Connect 0.8, SIWX 0.6, Orbit 0.5). When the docs and this file disagree, the docs win.
+Every code block below compiles against the current releases (`@tuwaio/sdk` 0.6, Nova UI Kit 0.10, `@tuwaio/pulsar-core` 0.11, Satellite Connect 0.10, SIWX 0.7, Orbit 0.6). When the docs and this file disagree, the docs win.
 
 ---
 
@@ -465,6 +465,31 @@ export default function HomePage() {
 }
 ```
 
+**Refreshing data when a transaction finishes.** Functions cannot be saved to `localStorage`, so a transaction still pending at a reload finishes without the `onSuccess`, `onError` and `onReplaced` of its `executeTxAction`. Refetch the data a transaction changes in the "transaction finished" event of the store instead: it fires once for every transaction that reaches `Success`, `Failed` or `Replaced`, also after a reload and when the Quasar history brings the final status from another device. In a component, use `useTxFinished`; outside React, the `onTxFinished` option of `createPulsarStore` takes the same function. One listener serves every transaction: decide from `tx.type` and `tx.payload`.
+
+```tsx
+// src/components/CounterValue.tsx
+'use client';
+
+import { TransactionStatus, useTxFinished } from '@tuwaio/sdk/pulsar';
+
+import { usePulsarStore } from '@/hooks/pulsarStore';
+import { TxType } from '@/transactions';
+
+export function CounterValue({ value, refetch }: { value: number | undefined; refetch: () => void }) {
+  const subscribeTxFinished = usePulsarStore((state) => state.subscribeTxFinished);
+
+  useTxFinished({
+    subscribeTxFinished,
+    onFinished: (tx) => {
+      if (tx.type === TxType.increment && tx.status === TransactionStatus.Success) refetch();
+    },
+  });
+
+  return <p>Counter: {value ?? '…'}</p>;
+}
+```
+
 **The session on the server.** Server Actions and route handlers read the session from the cookie and compare it with the wallet the request is about. The SIWX state in the browser (`@tuwaio/sdk/siwx`) is UI state, never proof of the sign-in.
 
 ```ts
@@ -714,7 +739,7 @@ export const transactionsLabels: Partial<NovaTransactionsLabels> = {
 
 ## 7. Pulsar Without React
 
-The trackers work without the store, for your own state or a server. `evmTracker` resolves when tracking has finished; `initializePollingTracker` with a fetcher (`solanaFetcher`, `safeFetcher`) polls in the background.
+The trackers work without the store, for your own state or a server. `evmTracker` resolves when tracking has finished; `initializePollingTracker` with a fetcher (`solanaFetcher`, `safeFetcher` or `createSafeFetcher({ pendingTimeoutMs })`) polls in the background.
 
 ```ts
 // src/lib/trackTransaction.ts
@@ -755,7 +780,7 @@ export function trackSolanaSignature(signature: string) {
 }
 ```
 
-ERC-4337 (`erc4337Tracker`), Safe (`safeFetcher`) and the helpers: [EVM Trackers Standalone](https://pulsar.docs.tuwa.io/evmStandalone), [Solana Trackers Standalone](https://pulsar.docs.tuwa.io/solanaStandalone). The trackers read `@tuwaio/pulsar-evm` and `@tuwaio/pulsar-solana` directly; with the SDK, use `@tuwaio/evm-sdk/pulsar` and `@tuwaio/solana-sdk/pulsar`.
+ERC-4337 (`erc4337Tracker`), Safe (`safeFetcher`; the `@tuwaio/pulsar-evm/safe` entry, `@tuwaio/evm-sdk/pulsar-safe` with the SDK, has it without wagmi) and the helpers: [EVM Trackers Standalone](https://pulsar.docs.tuwa.io/evmStandalone), [Solana Trackers Standalone](https://pulsar.docs.tuwa.io/solanaStandalone). The trackers read `@tuwaio/pulsar-evm` and `@tuwaio/pulsar-solana` directly; with the SDK, use `@tuwaio/evm-sdk/pulsar` and `@tuwaio/solana-sdk/pulsar`.
 
 ---
 
@@ -845,6 +870,7 @@ Source: [cosmos-playground/examples](https://github.com/TuwaIO/cosmos-playground
 **State**
 
 - Blockchain writes go through `executeTxAction` of the Pulsar store; read their status from the store with selectors, not from local `useState`.
+- Refetch the data a transaction changes in `useTxFinished` or the `onTxFinished` option of `createPulsarStore`, not in the `onSuccess` of `executeTxAction`: the callbacks are lost on a reload. Keep them for the interface of the page that sent the transaction.
 - Select single fields from Zustand stores (`useStore((state) => state.field)`), never the whole state.
 - Type each transaction: a union of `Transaction & { type; payload }` as the generic of `createPulsarStore`.
 - A Solana transaction stays pending until it is finalized; `confirmationStatus` (`processed`, `confirmed`, `finalized`) shows its progress before that, and Nova shows `confirmed` as its own step.
