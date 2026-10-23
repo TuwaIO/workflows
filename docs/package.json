@@ -8,5 +8,10 @@
     "marked": "^18.0.9",
     "md-to-pdf": "^5.2.5"
   },
+  "overrides": {
+    "md-to-pdf": {
+      "chokidar": "^4.0.3"
+    }
+  },
   "type": "module"
 }
