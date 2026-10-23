@@ -1,12 +1,12 @@
 # Terms of Service
-Last Updated: October 14, 2026
+Last Updated: October 23, 2026
 
 Welcome to TUWA! These Terms of Service ("Terms") govern your access to and use of the websites located at [tuwa.io](https://tuwa.io/), [demo.tuwa.io](https://demo.tuwa.io/) and [custom-style.tuwa.io](https://custom-style.tuwa.io/), the documentation at [docs.tuwa.io](https://docs.tuwa.io/), the project documentation sites on subdomains of docs.tuwa.io and [stories.tuwa.io](https://stories.tuwa.io/), the Quasar dashboard located at [quasar.tuwa.io](https://quasar.tuwa.io/), our open-source npm packages (Orbit Utils, SIWX, Satellite Connect, Pulsar, Nova UI Kit, the TUWA SDK and the Quasar SDK) and Quasar Community Edition (collectively, the "Ecosystem"), provided by FOP Tkach Oleksandr. By accessing the Ecosystem, you agree to be bound by these Terms.
 
 ## 1. Open Source Software & SaaS Cloud
 Our npm packages (Orbit Utils, SIWX, Satellite Connect, Pulsar, Nova UI Kit, the TUWA SDK and the Quasar SDK) are open source and licensed under the [Apache 2.0 License](https://github.com/TuwaIO). Quasar Cloud is our managed cloud service: API endpoints, transaction synchronization, quota and the dashboard. Quasar Community Edition is the open-source (Apache 2.0) edition of Quasar that you run on your own infrastructure; you operate and are responsible for any deployment you run.
 
-**Quasar Cloud is for businesses only.** We offer Quasar Cloud, including its quota, only to businesses: companies and other organizations, and individuals acting for their trade, business, craft or profession. By creating an organization in Quasar Cloud, you confirm that you act for such a business and that you may bind it. We do not offer Quasar Cloud to consumers. Our open-source software, the documentation and our other sites remain available to everyone.
+**Quasar Cloud is for businesses only.** We offer Quasar Cloud, including its quota, only to businesses: companies and other organizations, and individuals acting for their trade, business, craft or profession. By creating an organization in Quasar Cloud, you confirm either that you use Quasar Cloud for your own trade, business, craft or profession, or that you represent a company or other organization and are authorized to enter into these Terms on its behalf. We do not offer Quasar Cloud to consumers. Our open-source software, the documentation and our other sites remain available to everyone.
 
 **Sanctions.** You may not use Quasar Cloud if you, or the organization you act for, are subject to sanctions of Ukraine, the European Union, the United States, the United Kingdom or the United Nations, or if your use of Quasar Cloud would breach such sanctions. We may suspend or close access that breaks this rule.
 

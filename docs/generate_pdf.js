@@ -73,6 +73,11 @@ function createRenderer() {
   return renderer;
 }
 
+// A dash stays on the line of the word before it: a line of the PDF or the page never starts with "—"
+function keepDashesOnLine(html) {
+  return html.replace(/>([^<]*)</g, (match, text) => `>${text.replace(/ —/g, '\u00a0—')}<`);
+}
+
 /*
  * The page data of a policy for `@tuwaio/docs-ui`: the title, the date, the sections with their anchors and the body
  * as HTML without the title and the date line (the page shows them itself).
@@ -83,7 +88,7 @@ function toPageData(markdown, hash, language, languages) {
   const title = titleIndex >= 0 ? tokens[titleIndex].text : '';
   const body = tokens.filter((token, index) => index !== titleIndex && !(token.type === 'paragraph' && language.pattern.test(token.raw)));
   body.links = tokens.links;
-  const html = marked.parser(body, { renderer: createRenderer() });
+  const html = keepDashesOnLine(marked.parser(body, { renderer: createRenderer() }));
   const sections = [...html.matchAll(/<h2 id="([^"]+)">([\s\S]*?)<\/h2>/g)].map(([, id, inner]) => ({
     id,
     title: decodeEntities(inner.replace(/<[^>]+>/g, '')).replace(/^\d+\.\s*/, '')
@@ -291,7 +296,7 @@ async function generate() {
         console.log(`Updated date in ${name}`);
       }
 
-      const htmlContent = marked.parse(md, { renderer: createRenderer() });
+      const htmlContent = keepDashesOnLine(marked.parse(md, { renderer: createRenderer() }));
       const html = `
       <!DOCTYPE html>
       <html lang="${language.code}">
