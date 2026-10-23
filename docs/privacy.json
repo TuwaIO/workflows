@@ -1,6 +1,11 @@
 {
   "title": "Privacy Policy",
   "updated": "October 17, 2026",
+  "language": "en",
+  "languages": [
+    "en",
+    "uk"
+  ],
   "sections": [
     {
       "id": "open-source-ecosystem-transparency",

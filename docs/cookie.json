@@ -1,6 +1,11 @@
 {
   "title": "Cookie Policy",
   "updated": "October 16, 2026",
+  "language": "en",
+  "languages": [
+    "en",
+    "uk"
+  ],
   "sections": [
     {
       "id": "authentication-session-cookies",

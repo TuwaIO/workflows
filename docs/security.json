@@ -1,6 +1,11 @@
 {
   "title": "Security Policy",
   "updated": "October 16, 2026",
+  "language": "en",
+  "languages": [
+    "en",
+    "uk"
+  ],
   "sections": [
     {
       "id": "what-we-promise-and-what-we-do-not",

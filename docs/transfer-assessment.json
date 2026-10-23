@@ -1,6 +1,11 @@
 {
   "title": "Transfer Assessment: Ukraine",
   "updated": "October 17, 2026",
+  "language": "en",
+  "languages": [
+    "en",
+    "uk"
+  ],
   "sections": [
     {
       "id": "the-transfer",

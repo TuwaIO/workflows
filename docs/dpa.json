@@ -1,6 +1,11 @@
 {
   "title": "Data Processing Addendum",
   "updated": "October 17, 2026",
+  "language": "en",
+  "languages": [
+    "en",
+    "uk"
+  ],
   "sections": [
     {
       "id": "roles",

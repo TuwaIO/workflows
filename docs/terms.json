@@ -1,6 +1,11 @@
 {
   "title": "Terms of Service",
   "updated": "October 14, 2026",
+  "language": "en",
+  "languages": [
+    "en",
+    "uk"
+  ],
   "sections": [
     {
       "id": "open-source-software-saas-cloud",
