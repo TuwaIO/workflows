@@ -9,6 +9,14 @@ For every document, `generate_pdf.js` writes:
 
 A document with an unfinished placeholder (`[TODO: …]`) is not generated: its previous PDF and page stay in place until the text is complete, and the script exits with an error. Placeholders that are part of a document, such as the fields of the model withdrawal form in the Refund Policy (`[date]`, `[name]`), are not affected.
 
+## Languages
+
+English is the original: `<name>.md` in this directory. A translation lives in a directory named after its language — Ukrainian in `uk/` (`uk/terms.md`) — and is generated next to it (`uk/terms.pdf`, `uk/terms.json`). Its date line uses the label of its language (`Останнє оновлення: 23 жовтня 2026 р.`), and it changes, like the English one, only when that text changes.
+
+Every section heading of a translation names the anchor of the English section: `## 5. Облік і оплата {#account-billing}`. A link to a section (`/refund#how-to-request-a-refund`) then works in every language. The script refuses a translation whose sections or anchors differ from the English document. Each page data file lists the languages its document exists in (`"languages": ["en", "uk"]`), and `@tuwaio/docs-ui` shows a language switch from it.
+
+Update a translation together with its English document: a translation that was not updated keeps its older date, and the page shows it.
+
 The website, the docs hub and the Quasar dashboard read these files from `main`, and `@tuwaio/docs-ui` lists every policy (`policies`): a new document needs an entry there too. Footers show a policy once its entry is `published: true`; until then it is listed only on the docs hub (`/policies`, marked "In review").
 
 ## How to edit and generate new files

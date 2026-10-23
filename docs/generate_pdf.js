@@ -19,18 +19,27 @@ const files = [
 // A document with an open placeholder is not published: the old PDF and page stay until the text is complete
 const UNFINISHED = /\[TODO\b/;
 
-const DATE_FORMATTER = new Intl.DateTimeFormat('en-US', {
-  day: 'numeric',
-  month: 'long',
-  timeZone: 'Europe/Kyiv',
-  year: 'numeric'
-});
+const dateFormatter = (locale) =>
+  new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'long', timeZone: 'Europe/Kyiv', year: 'numeric' });
 
-const LAST_UPDATED = /^Last Updated:\s*(.*)$/m;
+/*
+ * The languages of the documents. English is the original in this directory; a translation lives in a subdirectory
+ * named after its language (`uk/terms.md`) and is generated next to it (`uk/terms.pdf`, `uk/terms.json`). Its date
+ * line uses the label of its language. Every heading of a translation names the anchor of the English section
+ * (`## 5. Облік і оплата {#account-billing}`), so a link to a section works in every language.
+ */
+const LANGUAGES = [
+  { code: 'en', dir: '.', label: 'Last Updated', locale: 'en-US' },
+  { code: 'uk', dir: 'uk', label: 'Останнє оновлення', locale: 'uk-UA' }
+].map((language) => ({
+  ...language,
+  pattern: new RegExp(`^${language.label}:\\s*(.*)$`, 'm'),
+  format: dateFormatter(language.locale)
+}));
 
 // Hash of the text without the date line: the date changes only when the text does
-function sourceHash(markdown) {
-  return createHash('sha256').update(markdown.replace(LAST_UPDATED, '')).digest('hex');
+function sourceHash(markdown, language = LANGUAGES[0]) {
+  return createHash('sha256').update(markdown.replace(language.pattern, '')).digest('hex');
 }
 
 // Anchor of a section: "## 5. Account & Billing" -> "account-billing", stable when sections are renumbered
@@ -44,13 +53,18 @@ function slugify(text) {
     .replace(/^-+|-+$/g, '');
 }
 
+// An anchor a heading names itself: `Title {#anchor}` (translations take the anchor of the English section)
+const EXPLICIT_ANCHOR = /\s*\{#([a-z0-9-]+)\}\s*$/;
+
 // Headings get ids, so the website, the dashboard and the FAQ can link to a section
 function createRenderer() {
   const used = new Map();
   const renderer = new marked.Renderer();
   renderer.heading = function ({ tokens, depth }) {
-    const inner = this.parser.parseInline(tokens);
-    const base = slugify(inner) || 'section';
+    let inner = this.parser.parseInline(tokens);
+    const explicit = inner.match(EXPLICIT_ANCHOR);
+    if (explicit) inner = inner.replace(EXPLICIT_ANCHOR, '');
+    const base = explicit?.[1] ?? (slugify(inner) || 'section');
     const count = used.get(base) ?? 0;
     used.set(base, count + 1);
     const id = count ? `${base}-${count + 1}` : base;
@@ -63,11 +77,11 @@ function createRenderer() {
  * The page data of a policy for `@tuwaio/docs-ui`: the title, the date, the sections with their anchors and the body
  * as HTML without the title and the date line (the page shows them itself).
  */
-function toPageData(markdown, hash) {
+function toPageData(markdown, hash, language, languages) {
   const tokens = marked.lexer(markdown);
   const titleIndex = tokens.findIndex((token) => token.type === 'heading' && token.depth === 1);
   const title = titleIndex >= 0 ? tokens[titleIndex].text : '';
-  const body = tokens.filter((token, index) => index !== titleIndex && !(token.type === 'paragraph' && LAST_UPDATED.test(token.raw)));
+  const body = tokens.filter((token, index) => index !== titleIndex && !(token.type === 'paragraph' && language.pattern.test(token.raw)));
   body.links = tokens.links;
   const html = marked.parser(body, { renderer: createRenderer() });
   const sections = [...html.matchAll(/<h2 id="([^"]+)">([\s\S]*?)<\/h2>/g)].map(([, id, inner]) => ({
@@ -77,7 +91,9 @@ function toPageData(markdown, hash) {
 
   return {
     title,
-    updated: (markdown.match(LAST_UPDATED)?.[1] ?? '').trim(),
+    updated: (markdown.match(language.pattern)?.[1] ?? '').trim(),
+    language: language.code,
+    languages,
     sections,
     html,
     sourceHash: hash
@@ -97,11 +113,16 @@ function decodeEntities(text) {
  * Sets "Last Updated" to today when the text changed since the last run (by the hash saved in the JSON). A file that
  * was never generated keeps its date. Returns the Markdown and whether it changed.
  */
-function updateLastUpdatedDate(markdown, previousHash, hash) {
+function updateLastUpdatedDate(markdown, previousHash, hash, language) {
   if (!previousHash || previousHash === hash) return markdown;
-  const lastUpdated = `Last Updated: ${DATE_FORMATTER.format(new Date())}`;
+  const lastUpdated = `${language.label}: ${language.format.format(new Date())}`;
 
-  return markdown.replace(LAST_UPDATED, lastUpdated);
+  return markdown.replace(language.pattern, lastUpdated);
+}
+
+// The anchors of the level-2 sections of a document, in order
+function sectionAnchors(markdown) {
+  return [...marked.parse(markdown, { renderer: createRenderer() }).matchAll(/<h2 id="([^"]+)">/g)].map(([, id]) => id);
 }
 
 const CSS = `
@@ -212,39 +233,68 @@ async function generate() {
   const svgLogo = fs.readFileSync(path.join(process.cwd(), '../preview/logo_v2.svg'), 'utf8');
 
   for (const file of files) {
-    const markdownPath = path.join(process.cwd(), file.name + '.md');
-    const pdfPath = path.join(process.cwd(), file.out + '.pdf');
-    const jsonPath = path.join(process.cwd(), file.out + '.json');
-    if (!fs.existsSync(markdownPath)) {
-      console.log(`Skipped: ${file.name}.md does not exist`);
-      continue;
-    }
+    // The languages this document exists in, for the language switch of the page
+    const languages = LANGUAGES.filter((language) =>
+      fs.existsSync(path.join(process.cwd(), language.dir, file.name + '.md'))
+    ).map((language) => language.code);
 
-    const originalMarkdown = fs.readFileSync(markdownPath, 'utf8');
-    if (UNFINISHED.test(originalMarkdown)) {
-      console.error(`Not generated: ${file.name}.md still has a [TODO] placeholder`);
-      process.exitCode = 1;
-      continue;
-    }
-    const hash = sourceHash(originalMarkdown);
-    const previousHash = fs.existsSync(jsonPath) ? JSON.parse(fs.readFileSync(jsonPath, 'utf8')).sourceHash : undefined;
+    for (const language of LANGUAGES) {
+      const dir = path.join(process.cwd(), language.dir);
+      const markdownPath = path.join(dir, file.name + '.md');
+      const pdfPath = path.join(dir, file.out + '.pdf');
+      const jsonPath = path.join(dir, file.out + '.json');
+      const name = path.join(language.dir, file.name + '.md').replace(/^\.\//, '');
 
-    if (!force && previousHash === hash && fs.existsSync(pdfPath)) {
-      console.log(`Unchanged: ${file.name}.md`);
-      continue;
-    }
+      if (!fs.existsSync(markdownPath)) {
+        if (language.code === 'en') console.log(`Skipped: ${name} does not exist`);
+        continue;
+      }
 
-    const md = updateLastUpdatedDate(originalMarkdown, previousHash, hash);
-    if (md !== originalMarkdown) {
-      fs.writeFileSync(markdownPath, md, 'utf8');
-      console.log(`Updated date in ${file.name}.md`);
-    }
+      const originalMarkdown = fs.readFileSync(markdownPath, 'utf8');
 
-    const htmlContent = marked.parse(md, { renderer: createRenderer() });
+      if (UNFINISHED.test(originalMarkdown)) {
+        console.error(`Not generated: ${name} still has a [TODO] placeholder`);
+        process.exitCode = 1;
+        continue;
+      }
 
-    const html = `
+      // A translation keeps the sections and anchors of the English document
+      if (language.code !== 'en') {
+        const original = sectionAnchors(fs.readFileSync(path.join(process.cwd(), file.name + '.md'), 'utf8'));
+        const translated = sectionAnchors(originalMarkdown);
+        if (original.join(' ') !== translated.join(' ')) {
+          console.error(`Not generated: the sections of ${name} (${translated.join(', ')}) differ from ${file.name}.md (${original.join(', ')})`);
+          process.exitCode = 1;
+          continue;
+        }
+      }
+
+      const hash = sourceHash(originalMarkdown, language);
+      const previous = fs.existsSync(jsonPath) ? JSON.parse(fs.readFileSync(jsonPath, 'utf8')) : undefined;
+      const previousHash = previous?.sourceHash;
+
+      if (!force && previousHash === hash && fs.existsSync(pdfPath)) {
+        // Same text: only the list of languages may have changed, and the page data says it without a new date
+        if ((previous.languages ?? ['en']).join() !== languages.join()) {
+          fs.writeFileSync(jsonPath, JSON.stringify(toPageData(originalMarkdown, hash, language, languages), null, 2) + '\n', 'utf8');
+          console.log(`Updated the languages of ${path.join(language.dir, file.out + '.json').replace(/^\.\//, '')}`);
+        } else {
+          console.log(`Unchanged: ${name}`);
+        }
+        continue;
+      }
+
+      const md = updateLastUpdatedDate(originalMarkdown, previousHash, hash, language);
+
+      if (md !== originalMarkdown) {
+        fs.writeFileSync(markdownPath, md, 'utf8');
+        console.log(`Updated date in ${name}`);
+      }
+
+      const htmlContent = marked.parse(md, { renderer: createRenderer() });
+      const html = `
       <!DOCTYPE html>
-      <html>
+      <html lang="${language.code}">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -260,18 +310,19 @@ async function generate() {
       </html>
     `;
 
-    await page.setContent(html);
-    await page.evaluateHandle('document.fonts.ready');
-    await page.pdf({
-      path: pdfPath,
-      format: 'A4',
-      printBackground: true,
-      margin: { top: '20mm', right: '20mm', bottom: '20mm', left: '20mm' }
-    });
-    console.log('Generated ' + file.out + '.pdf');
+      await page.setContent(html);
+      await page.evaluateHandle('document.fonts.ready');
+      await page.pdf({
+        path: pdfPath,
+        format: 'A4',
+        printBackground: true,
+        margin: { top: '20mm', right: '20mm', bottom: '20mm', left: '20mm' }
+      });
 
-    fs.writeFileSync(jsonPath, JSON.stringify(toPageData(md, hash), null, 2) + '\n', 'utf8');
-    console.log('Generated ' + file.out + '.json');
+      console.log('Generated ' + path.join(language.dir, file.out + '.pdf').replace(/^\.\//, ''));
+      fs.writeFileSync(jsonPath, JSON.stringify(toPageData(md, hash, language, languages), null, 2) + '\n', 'utf8');
+      console.log('Generated ' + path.join(language.dir, file.out + '.json').replace(/^\.\//, ''));
+    }
   }
 
   await browser.close();
