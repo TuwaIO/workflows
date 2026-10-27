@@ -1,5 +1,5 @@
 # Cookie Policy
-Last Updated: October 16, 2026
+Last Updated: October 27, 2026
 
 This Cookie Policy explains how the TUWA ecosystem—including [tuwa.io](https://tuwa.io/), [demo.tuwa.io](https://demo.tuwa.io/), [custom-style.tuwa.io](https://custom-style.tuwa.io/), the documentation sites and the [Quasar dashboard](https://quasar.tuwa.io)—uses cookies, Local Storage and similar browser storage to provide you with a secure, multi-chain Web3 experience.
 
@@ -7,12 +7,12 @@ This Cookie Policy explains how the TUWA ecosystem—including [tuwa.io](https:/
 We use session cookies for authorization where login is offered: in the Quasar dashboards, in the demo at [demo.tuwa.io](https://demo.tuwa.io) and in the wallet demo on [tuwa.io](https://tuwa.io). This includes Sign-In With X (SIWX) for multi-chain wallet authentication and the underlying Payload CMS authorization mechanism used by the Quasar dashboard. These cookies maintain your session and identity. Our other sites set no cookies of their own.
 
 ## 2. Platform Specifics
-- **Main Website ([tuwa.io](https://tuwa.io)):** Sets a cookie only when you sign in with a wallet in the demo on the home page: a signed session cookie keeps you signed in for 30 minutes. Local Storage keeps the theme you choose and, if you connect a wallet in the demo, the wallet, sign-in and transaction state described in Sections 3 and 4.
+- **Main Website ([tuwa.io](https://tuwa.io)):** Sets a cookie only when you sign in with a wallet in the demo on the home page: a signed session cookie keeps you signed in for 30 minutes. Local Storage keeps the theme and the language you choose and, if you connect a wallet in the demo, the wallet, sign-in and transaction state described in Sections 3 and 4.
 - **Demo ([demo.tuwa.io](https://demo.tuwa.io)):** When you sign in with a wallet, a signed session cookie keeps you signed in for 30 minutes. Local Storage keeps the wallet and transaction state described in Section 3.
 - **Quasar Dashboard ([quasar.tuwa.io](https://quasar.tuwa.io)):** Uses session cookies for authentication and dashboard access.
 - **Staging Quasar Dashboard ([quasar-stg.tuwa.io](https://quasar-stg.tuwa.io/)):** Uses the same session-cookie-based authentication and access model as the production dashboard.
 - **Custom Styles ([custom-style.tuwa.io](https://custom-style.tuwa.io)):** Is purely client-side and does not use cookies. It relies on local state, standard caching and, if you connect a wallet or use the read-only Impersonate mode, the storage described in Sections 3 and 4.
-- **Documentation ([docs.tuwa.io](https://docs.tuwa.io) and the project sites on subdomains of docs.tuwa.io):** Use no cookies. Local Storage keeps the theme you choose and the tab you pick in the guides, such as EVM or Solana. The [Playground](https://docs.tuwa.io/playground) runs on simulated wallets: while you use it, it keeps the simulated connection, sign-in and transactions as described in Section 4.
+- **Documentation ([docs.tuwa.io](https://docs.tuwa.io) and the project sites on subdomains of docs.tuwa.io):** Use no cookies. Local Storage keeps the theme and the language you choose and the tab you pick in the guides, such as EVM or Solana. The [Playground](https://docs.tuwa.io/playground) runs on simulated wallets: while you use it, it keeps the simulated connection, sign-in and transactions as described in Section 4.
 - **Status page ([tuwa.io/status](https://tuwa.io/status)):** Our own page. The tuwa.io server reads the status of our services from UptimeRobot, so the page and the status badge on [tuwa.io](https://tuwa.io) set no cookies or browser storage of their own and your browser does not contact UptimeRobot.
 - **Component explorer ([stories.tuwa.io](https://stories.tuwa.io)):** Uses no cookies. If you switch the theme, it keeps your choice in Session Storage until you close the tab. If you connect a wallet or use the read-only Impersonate mode, it keeps the storage described in Sections 3 and 4.
 
@@ -35,7 +35,10 @@ This list was checked against our sites and code. It covers the storage that our
 | `siwx-demo-session` | Cookie (HttpOnly) | tuwa.io | When you sign in with a wallet in the demo | Keeps a wallet sign-in (SIWX) | 30 minutes |
 | `payload-theme` | Cookie | Admin panel of the Quasar dashboards | When you switch the theme on its sign-in page or in its settings | Remembers the light or dark theme you chose | 30 days after you switch it |
 | `payload-theme:expires` | Local Storage | Admin panel of the Quasar dashboards | When the admin panel finds the `payload-theme` cookie | Remembers when to remove that cookie | 30 days after you switch the theme |
+| `payload-lng` | Cookie | Admin panel of the Quasar dashboards | When you pick a language in its account settings | Remembers the language you chose | 30 days after you pick it |
+| `payload-lng:expires` | Local Storage | Admin panel of the Quasar dashboards | When the admin panel finds the `payload-lng` cookie | Remembers when to remove that cookie | 30 days after you pick the language |
 | `theme`, `theme:expires` | Local Storage | tuwa.io, the documentation sites and the Quasar dashboards | When you switch the theme | Remembers the light or dark theme you chose, and when to forget it | 30 days after you switch it |
+| `tuwa-locale`, `tuwa-locale:expires` | Local Storage | tuwa.io, the documentation sites and the Quasar dashboards | When you pick a language | Remembers the language you chose (English, Ukrainian or Simplified Chinese), and when to forget it | 30 days after you pick it |
 | `tuwa-guide-network`, `tuwa-guide-network:expires` | Local Storage | docs.tuwa.io | When you pick a tab in a guide | Remembers the EVM or Solana tab you chose, and when to forget it | 30 days after you pick it |
 | `quasar:auth_method` | Local Storage | Quasar dashboards | When you sign in | Remembers whether you signed in with a wallet, so that disconnecting that wallet signs you out | Until you sign out or clear it |
 | `quasar_selected_org_id:*` | Local Storage | Quasar dashboards | When you sign in or switch organizations | Opens the organization you used last; the name contains your account ID | Until you sign out or your sign-in ends |
