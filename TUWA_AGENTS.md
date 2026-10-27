@@ -32,7 +32,7 @@ Step-by-step guides (the long form of this file): [Full-Stack React](https://doc
 
 | Requirement | Version                                                                                                            |
 | ----------- | ------------------------------------------------------------------------------------------------------------------ |
-| Runtime     | Node.js 20.19+, 22.13+ or 24 LTS (the `engines` range of the templates: ESLint 10, Vite 8). Not Node.js 25+: its global `localStorage` breaks SSR checks and Vitest |
+| Runtime     | Node.js 24 LTS, 24.22.1 or newer (the `engines` range of the templates, `^24.22.1`: the October 2026 security release). Not Node.js 25+: its global `localStorage` breaks SSR checks and Vitest |
 | Framework   | React 19.2+; Next.js 16 (App Router) or Vite                                                                       |
 | Language    | TypeScript, strict mode                                                                                            |
 | Styling     | Tailwind CSS v4 (optional: the Nova stylesheets are precompiled)                                                   |
