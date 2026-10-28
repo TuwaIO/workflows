@@ -3,7 +3,7 @@
 > Context for AI coding agents that build apps with TUWA. Copy this file into the `AGENTS.md` (or `CLAUDE.md`, `.cursorrules`) of your app, or point the agent to its raw URL: `https://raw.githubusercontent.com/TuwaIO/workflows/main/TUWA_AGENTS.md`.
 > The maintainers of the TUWA packages follow the `AGENTS.md` of each repository instead.
 
-Every code block below compiles against the current releases (`@tuwaio/sdk` 0.6, Nova UI Kit 0.10, `@tuwaio/pulsar-core` 0.11, Satellite Connect 0.10, SIWX 0.7, Orbit 0.6). When the docs and this file disagree, the docs win.
+Every code block below compiles against the current releases (`@tuwaio/sdk` 0.6, `@tuwaio/quasar-sdk` 0.7, Nova UI Kit 0.10, `@tuwaio/pulsar-core` 0.11, `@tuwaio/satellite-core` 0.11, `@tuwaio/siwx-core` 0.7, `@tuwaio/orbit-core` 0.6). When the docs and this file disagree, the docs win.
 
 ---
 
@@ -30,15 +30,15 @@ Step-by-step guides (the long form of this file): [Full-Stack React](https://doc
 
 ## 2. Stack
 
-| Requirement | Version                                                                                                            |
-| ----------- | ------------------------------------------------------------------------------------------------------------------ |
+| Requirement | Version                                                                                                                                                                                         |
+| ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Runtime     | Node.js 24 LTS, 24.22.1 or newer (the `engines` range of the templates, `^24.22.1`: the October 2026 security release). Not Node.js 25+: its global `localStorage` breaks SSR checks and Vitest |
-| Framework   | React 19.2+; Next.js 16 (App Router) or Vite                                                                       |
-| Language    | TypeScript, strict mode                                                                                            |
-| Styling     | Tailwind CSS v4 (optional: the Nova stylesheets are precompiled)                                                   |
-| State       | `zustand` 5, `immer` 11                                                                                            |
-| EVM         | `@wagmi/core` 3 and `viem` 2 (no `wagmi` React package and no `WagmiProvider`)                                     |
-| Solana      | `@solana/kit` 8.2+ and Wallet Standard (`@wallet-standard/*`)                                                      |
+| Framework   | React 19.2+; Next.js 16 (App Router) or Vite                                                                                                                                                    |
+| Language    | TypeScript, strict mode                                                                                                                                                                         |
+| Styling     | Tailwind CSS v4 (optional: the Nova stylesheets are precompiled)                                                                                                                                |
+| State       | `zustand` 5, `immer` 11                                                                                                                                                                         |
+| EVM         | `@wagmi/core` 3 and `viem` 2 (no `wagmi` React package and no `WagmiProvider`)                                                                                                                  |
+| Solana      | `@solana/kit` 8.2+ and Wallet Standard (`@wallet-standard/*`)                                                                                                                                   |
 
 ---
 
@@ -465,6 +465,32 @@ export default function HomePage() {
 }
 ```
 
+**Your own wallet list.** Some wallets appear after the first render: wagmi adds the installed EIP-6963 wallets when `EVMConnectorsWatcher` hydrates the config, and Wallet Standard wallets register when their extension is ready. The Nova Connect modals follow these changes. A list of your own reads the wallets with `useWalletConnectors()`, not with one `getConnectors()` call: the hook reads them again whenever the Satellite store reports a change.
+
+```tsx
+// src/components/WalletList.tsx
+'use client';
+
+import { useWalletConnectors } from '@tuwaio/sdk/nova-connect/hooks';
+import { OrbitAdapter } from '@tuwaio/sdk/orbit';
+
+// Inside SatelliteConnectProvider. The list fills in by itself when wagmi adds the installed EIP-6963 wallets
+// or a Wallet Standard wallet registers after the page loads
+export function WalletList() {
+  const connectors = useWalletConnectors();
+
+  return (
+    <ul>
+      {[OrbitAdapter.EVM, OrbitAdapter.SOLANA].flatMap((adapter) =>
+        (connectors?.[adapter] ?? []).map((wallet) => <li key={`${adapter}:${wallet.name}`}>{wallet.name}</li>),
+      )}
+    </ul>
+  );
+}
+```
+
+Without Nova Connect, subscribe with `watchConnectors(onChange)` of the Satellite store while the list is shown, read `getConnectors()` again in `onChange`, and stop the subscription when the list is hidden.
+
 **Refreshing data when a transaction finishes.** Functions cannot be saved to `localStorage`, so a transaction still pending at a reload finishes without the `onSuccess`, `onError` and `onReplaced` of its `executeTxAction`. Refetch the data a transaction changes in the "transaction finished" event of the store instead: it fires once for every transaction that reaches `Success`, `Failed` or `Replaced`, also after a reload and when the Quasar history brings the final status from another device. In a component, use `useTxFinished`; outside React, the `onTxFinished` option of `createPulsarStore` takes the same function. One listener serves every transaction: decide from `tx.type` and `tx.payload`.
 
 ```tsx
@@ -721,6 +747,8 @@ export const connectButtonCustomization: ConnectButtonCustomization = {
 };
 ```
 
+**The connect and connected modals** take their `customization` through `customization.modals.connectModal` and `connectedModal` of `NovaConnectProvider`. A custom `components.ModalContainer` of `connectModal` forwards `ref` to its element, passes `className` and `style` to it and is a flex column, and a custom `components.MainContent` is a flex container: the modal measures the wallet list through the `ref` and keeps its height on the network and connecting screens (without the `ref`, these screens take the height of their content). Nova windows follow the height of their content, so `config.animation` of the connect modal and `animation.layout` of the connected modal are deprecated and no longer applied.
+
 **Labels.** `labels` of `NovaConnectProvider` takes any subset of `NovaConnectLabels` (flat); `labels` of `NovaTransactionsProvider` takes whole groups of `NovaTransactionsLabels`:
 
 ```ts
@@ -850,6 +878,7 @@ Source: [cosmos-playground/examples](https://github.com/TuwaIO/cosmos-playground
 - Create the wagmi config, the Satellite adapters, the Pulsar stores and the `siwx` options once, at module level. A new adapter on every render makes `SatelliteConnectProvider` update its store each time.
 - `EVMConnectorsWatcher` hydrates a wagmi config created with `ssr: true` (`@tuwaio/satellite-react` 0.6.3+, in `@tuwaio/sdk` 0.2.1+): it adds the installed EIP-6963 wallets (MetaMask, Rabby…) to the connectors. Do not add `WagmiProvider` or a manual `hydrate` call for this; with an older version the connect modal lists no installed wallets.
 - Render one watcher per network inside `SatelliteConnectProvider`: `EVMConnectorsWatcher` (with `wagmiConfig`) and `SolanaConnectorsWatcher`.
+- Read a wallet list that is on screen with `useWalletConnectors()` (`@tuwaio/sdk/nova-connect/hooks`, `@tuwaio/sdk` 0.6.8+), or, without Nova Connect, with `watchConnectors` of the Satellite store (`@tuwaio/satellite-core` 0.11.2+). Never call `getConnectors()` once and keep the result: installed EIP-6963 wallets and late Wallet Standard wallets would be missing.
 - Pass `siwx` only to `NovaConnectProvider`, never to the watchers, and always with `getNonce`: the SIWX server handlers accept only nonces they issued.
 - `solanaRPCUrls` is keyed by cluster name (`mainnet`, `devnet`, `testnet`), not by `solana:…` chain ID.
 - Build and read chain and account IDs with the CAIP helpers of `@tuwaio/sdk/orbit` (`toCaip2ChainId`, `toEvmChainId`, `formatCaip10AccountId`, `parseCaip10AccountId`, `formatCaip19AssetId`, `parseCaip19AssetId`), never with template strings or `split(':')`. SIWX checks the address of a CAIP-10 account against its chain (`0x` and 40 hex characters for EVM, base58 for Solana).
@@ -879,5 +908,6 @@ Source: [cosmos-playground/examples](https://github.com/TuwaIO/cosmos-playground
 **Styling and code**
 
 - Color and round Nova-looking UI with the `--tuwa-*` variables, merge classes with `cn` from `@tuwaio/sdk/nova-core`.
+- Do not set `config.animation` of the connect modal or `animation.layout` of the connected modal: they are deprecated and do nothing. A custom `ModalContainer` of the connect modal forwards `ref`, `className` and `style` and is a flex column; a custom `MainContent` is a flex container.
 - Strict TypeScript without `any`; English in code and comments; run the linter and the formatter of the project after changes.
 - Never edit generated code (`src/programs/*/generated`).
