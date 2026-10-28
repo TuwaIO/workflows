@@ -465,7 +465,7 @@ export default function HomePage() {
 }
 ```
 
-**Your own wallet list.** Some wallets appear after the first render: wagmi adds the installed EIP-6963 wallets when `EVMConnectorsWatcher` hydrates the config, and Wallet Standard wallets register when their extension is ready. The Nova Connect modals follow these changes. A list of your own reads the wallets with `useWalletConnectors()`, which reads again whenever the Satellite store reports a change, not with one `getConnectors()` call.
+**Your own wallet list.** Some wallets appear after the first render: wagmi adds the installed EIP-6963 wallets when `EVMConnectorsWatcher` hydrates the config, and Wallet Standard wallets register when their extension is ready. The Nova Connect modals follow these changes. A list of your own reads the wallets with `useWalletConnectors()`, not with one `getConnectors()` call: the hook reads them again whenever the Satellite store reports a change.
 
 ```tsx
 // src/components/WalletList.tsx
@@ -747,7 +747,7 @@ export const connectButtonCustomization: ConnectButtonCustomization = {
 };
 ```
 
-**The connect and connected modals** take their `customization` through `customization.modals.connectModal` and `connectedModal` of `NovaConnectProvider`. A custom `ModalContainer` of the connect modal forwards `ref` to its element, passes `className` and `style` to it and is a flex column, and a custom `MainContent` is a flex container: the modal measures the wallet list through the `ref` and keeps its height on the network and connecting screens (without the `ref`, these screens take the height of their content). Nova windows follow the height of their content, so `config.animation` of the connect modal and `animation.layout` of the connected modal are deprecated and no longer applied.
+**The connect and connected modals** take their `customization` through `customization.modals.connectModal` and `connectedModal` of `NovaConnectProvider`. A custom `components.ModalContainer` of `connectModal` forwards `ref` to its element, passes `className` and `style` to it and is a flex column, and a custom `components.MainContent` is a flex container: the modal measures the wallet list through the `ref` and keeps its height on the network and connecting screens (without the `ref`, these screens take the height of their content). Nova windows follow the height of their content, so `config.animation` of the connect modal and `animation.layout` of the connected modal are deprecated and no longer applied.
 
 **Labels.** `labels` of `NovaConnectProvider` takes any subset of `NovaConnectLabels` (flat); `labels` of `NovaTransactionsProvider` takes whole groups of `NovaTransactionsLabels`:
 
@@ -878,7 +878,7 @@ Source: [cosmos-playground/examples](https://github.com/TuwaIO/cosmos-playground
 - Create the wagmi config, the Satellite adapters, the Pulsar stores and the `siwx` options once, at module level. A new adapter on every render makes `SatelliteConnectProvider` update its store each time.
 - `EVMConnectorsWatcher` hydrates a wagmi config created with `ssr: true` (`@tuwaio/satellite-react` 0.6.3+, in `@tuwaio/sdk` 0.2.1+): it adds the installed EIP-6963 wallets (MetaMask, Rabby…) to the connectors. Do not add `WagmiProvider` or a manual `hydrate` call for this; with an older version the connect modal lists no installed wallets.
 - Render one watcher per network inside `SatelliteConnectProvider`: `EVMConnectorsWatcher` (with `wagmiConfig`) and `SolanaConnectorsWatcher`.
-- Read a wallet list that is on screen with `useWalletConnectors()` (`@tuwaio/sdk/nova-connect/hooks`), or, without Nova Connect, with `watchConnectors` of the Satellite store. Never call `getConnectors()` once and keep the result: installed EIP-6963 wallets and late Wallet Standard wallets would be missing.
+- Read a wallet list that is on screen with `useWalletConnectors()` (`@tuwaio/sdk/nova-connect/hooks`, `@tuwaio/sdk` 0.6.8+), or, without Nova Connect, with `watchConnectors` of the Satellite store (`@tuwaio/satellite-core` 0.11.2+). Never call `getConnectors()` once and keep the result: installed EIP-6963 wallets and late Wallet Standard wallets would be missing.
 - Pass `siwx` only to `NovaConnectProvider`, never to the watchers, and always with `getNonce`: the SIWX server handlers accept only nonces they issued.
 - `solanaRPCUrls` is keyed by cluster name (`mainnet`, `devnet`, `testnet`), not by `solana:…` chain ID.
 - Build and read chain and account IDs with the CAIP helpers of `@tuwaio/sdk/orbit` (`toCaip2ChainId`, `toEvmChainId`, `formatCaip10AccountId`, `parseCaip10AccountId`, `formatCaip19AssetId`, `parseCaip19AssetId`), never with template strings or `split(':')`. SIWX checks the address of a CAIP-10 account against its chain (`0x` and 40 hex characters for EVM, base58 for Solana).
