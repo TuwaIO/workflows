@@ -83,7 +83,16 @@ function keepDashesOnLine(html) {
  * The page data of a policy for `@tuwaio/docs-ui`: the title, the date, the sections with their anchors and the body
  * as HTML without the title and the date line (the page shows them itself).
  */
-function toPageData(markdown, hash, language, languages, originalHash) {
+// The date a document states
+function statedDate(markdown, language) {
+  return (markdown.match(language.pattern)?.[1] ?? '').trim();
+}
+
+function fileHash(file) {
+  return createHash('sha256').update(fs.readFileSync(file)).digest('hex');
+}
+
+function toPageData(markdown, hash, language, languages, originalHash, pdfSha256) {
   const tokens = marked.lexer(markdown);
   const titleIndex = tokens.findIndex((token) => token.type === 'heading' && token.depth === 1);
   const title = titleIndex >= 0 ? tokens[titleIndex].text : '';
@@ -97,14 +106,16 @@ function toPageData(markdown, hash, language, languages, originalHash) {
 
   return {
     title,
-    updated: (markdown.match(language.pattern)?.[1] ?? '').trim(),
+    updated: statedDate(markdown, language),
     language: language.code,
     languages,
     sections,
     html,
     sourceHash: hash,
     // A translation: the `sourceHash` of the English text it translates
-    originalHash
+    originalHash,
+    // The PDF of this page: raw.githubusercontent.com keeps each file for minutes, so readers may get them from two runs
+    pdfSha256
   };
 }
 
@@ -249,9 +260,15 @@ async function generate() {
     headless: "new",
     args: ['--no-sandbox', '--disable-setuid-sandbox']
   });
-  
-  const page = await browser.newPage();
 
+  try {
+    await generateFiles(await browser.newPage(), reviewed);
+  } finally {
+    await browser.close();
+  }
+}
+
+async function generateFiles(page, reviewed) {
   const force = process.argv.includes('--force');
   const svgLogo = fs.readFileSync(path.join(process.cwd(), '../preview/logo_v2.svg'), 'utf8');
 
@@ -298,13 +315,21 @@ async function generate() {
       const previous = fs.existsSync(jsonPath) ? JSON.parse(fs.readFileSync(jsonPath, 'utf8')) : undefined;
       const previousHash = previous?.sourceHash;
 
-      // A translation follows the current English text once its own text changed or a person reviewed it. Until then it
-      // still states what it translated: the English text changing never makes an old translation look current
-      const follows = previousHash !== hash || reviewed.includes(file.name);
+      // A translation follows the current English text once its own text changed, a person reviewed it, or it translates
+      // that very text. Until then it still states what it translated: the English text changing never makes an old
+      // translation look current. Reviewing it gives it the date of the English text, which regenerates its PDF
       const currentOriginal = english === undefined ? undefined : sourceHash(english);
+      const follows =
+        english !== undefined &&
+        (previousHash !== hash || reviewed.includes(file.name) || previous?.originalHash === currentOriginal);
       const originalHash = follows ? currentOriginal : previous?.originalHash;
-      if (originalHash !== currentOriginal) {
-        console.log(`Behind: ${name} translates an earlier text of ${file.name}.md. Compare them, then update it or run with --reviewed=${file.name}`);
+      if (english !== undefined && !follows) {
+        const compare = `Compare them, then update it or run with --reviewed=${file.name}`;
+        console.log(
+          originalHash
+            ? `Behind: ${name} translates an earlier text of ${file.name}.md. ${compare}`
+            : `Not compared: nothing records which text of ${file.name}.md ${name} translates. ${compare}`
+        );
       }
 
       const md =
@@ -314,20 +339,34 @@ async function generate() {
             ? originalMarkdown.replace(language.pattern, translatedDate(english, language))
             : originalMarkdown;
 
-      if (!force && previousHash === hash && md === originalMarkdown && fs.existsSync(pdfPath)) {
-        // Same document: only the list of languages or what it translates may have changed, and the page data says it
-        if ((previous.languages ?? ['en']).join() !== languages.join() || previous.originalHash !== originalHash) {
-          fs.writeFileSync(jsonPath, JSON.stringify(toPageData(originalMarkdown, hash, language, languages, originalHash), null, 2) + '\n', 'utf8');
+      if (md !== originalMarkdown) {
+        fs.writeFileSync(markdownPath, md, 'utf8');
+        console.log(`Updated date in ${name}`);
+      }
+
+      // The PDF is this document only if its text, its date and its file are what the page data recorded: a run that
+      // stopped halfway, or a date corrected by hand, regenerates it, so that page and PDF never state different things
+      const pdfSha256 = fs.existsSync(pdfPath) ? fileHash(pdfPath) : undefined;
+      const sameDocument =
+        !force &&
+        pdfSha256 &&
+        previousHash === hash &&
+        statedDate(md, language) === previous.updated &&
+        (previous.pdfSha256 ?? pdfSha256) === pdfSha256;
+
+      if (sameDocument) {
+        // Only the list of languages, what it translates or the name of its PDF may have changed, and the page data says it
+        if (
+          (previous.languages ?? ['en']).join() !== languages.join() ||
+          previous.originalHash !== originalHash ||
+          previous.pdfSha256 !== pdfSha256
+        ) {
+          fs.writeFileSync(jsonPath, JSON.stringify(toPageData(md, hash, language, languages, originalHash, pdfSha256), null, 2) + '\n', 'utf8');
           console.log(`Updated the page data of ${path.join(language.dir, file.out + '.json').replace(/^\.\//, '')}`);
         } else {
           console.log(`Unchanged: ${name}`);
         }
         continue;
-      }
-
-      if (md !== originalMarkdown) {
-        fs.writeFileSync(markdownPath, md, 'utf8');
-        console.log(`Updated date in ${name}`);
       }
 
       const htmlContent = keepDashesOnLine(marked.parse(md, { renderer: createRenderer() }));
@@ -359,12 +398,14 @@ async function generate() {
       });
 
       console.log('Generated ' + path.join(language.dir, file.out + '.pdf').replace(/^\.\//, ''));
-      fs.writeFileSync(jsonPath, JSON.stringify(toPageData(md, hash, language, languages, originalHash), null, 2) + '\n', 'utf8');
+      fs.writeFileSync(jsonPath, JSON.stringify(toPageData(md, hash, language, languages, originalHash, fileHash(pdfPath)), null, 2) + '\n', 'utf8');
       console.log('Generated ' + path.join(language.dir, file.out + '.json').replace(/^\.\//, ''));
     }
   }
 
-  await browser.close();
 }
 
-generate().catch(console.error);
+generate().catch((error) => {
+  console.error(error);
+  process.exitCode = 1;
+});

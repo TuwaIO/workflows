@@ -5,17 +5,17 @@ This directory contains the source Markdown files and the generated files of TUW
 For every document, `generate_pdf.js` writes:
 
 - `<name>.pdf` — the official document with the TUWA logo, linked by the Download PDF button;
-- `<name>.json` — the page content for `@tuwaio/docs-ui` (`loadPolicy` and `PolicyDocument`): the title, the date, the sections with their anchors and the body as HTML. The website and the Quasar dashboard render the policy pages from it.
+- `<name>.json` — the page content for `@tuwaio/docs-ui` (`loadPolicy` and `PolicyDocument`): the title, the date, the sections with their anchors, the body as HTML and the SHA-256 of its PDF (`pdfSha256`: raw.githubusercontent.com keeps each file for minutes, so a reader may get the two from different runs). The website and the Quasar dashboard render the policy pages from it.
 
 A document with an unfinished placeholder (`[TODO: …]`) is not generated: its previous PDF and page stay in place until the text is complete, and the script exits with an error. Placeholders that are part of a document, such as the fields of the model withdrawal form in the Refund Policy (`[date]`, `[name]`), are not affected.
 
 ## Languages
 
-English is the original: `<name>.md` in this directory. A translation lives in a directory named after its language — Ukrainian in `uk/` (`uk/terms.md`) — and is generated next to it (`uk/terms.pdf`, `uk/terms.json`). Its date line uses the label of its language (`Останнє оновлення: 23 жовтня 2026 р.`), and it changes, like the English one, only when that text changes.
+English is the original: `<name>.md` in this directory. A translation lives in a directory named after its language — Ukrainian in `uk/` (`uk/terms.md`) — and is generated next to it (`uk/terms.pdf`, `uk/terms.json`). Its date line uses the label of its language (`Останнє оновлення: 23 жовтня 2026 р.`) and states the date of the English text it translates.
 
 Every section heading of a translation names the anchor of the English section: `## 5. Облік і оплата {#account-billing}`. A link to a section (`/refund#how-to-request-a-refund`) then works in every language. The script refuses a translation whose sections or anchors differ from the English document. Each page data file lists the languages its document exists in (`"languages": ["en", "uk"]`), and `@tuwaio/docs-ui` shows a language switch from it.
 
-Update a translation together with its English document: generated together, it states the date of the English text, and its JSON names that text (`originalHash`, the `sourceHash` of the English JSON). A translation that was not updated keeps its older date and `originalHash`, the page shows that date, the script reports it as `Behind`, and the Quasar dashboard does not offer it for acceptance: English is what the version says there. When the English change does not touch what the translation says, compare them and record that:
+Update a translation together with its English document: generated together, it states the date of the English text, and its JSON names that text (`originalHash`, the `sourceHash` of the English JSON). A translation that was not updated keeps its older date and `originalHash`, the page shows that date, the script reports it as `Behind` (`Not compared` when nothing records what it translates), and the Quasar dashboard does not offer it for acceptance: English is what the version says there. When the English change does not touch what the translation says, compare them and record that, which also gives the translation the date of the English text and, when that date is new, a new PDF:
 
 ```bash
 node generate_pdf.js --reviewed=terms,dpa
@@ -42,7 +42,7 @@ npm install
 npm run generate
 ```
 
-It regenerates only the documents whose text changed (and sets their "Last Updated" date). To regenerate every document, for example after a change of the layout in `generate_pdf.js`, run:
+It regenerates only the documents whose text changed (and sets the "Last Updated" date of the English ones). To regenerate every document, for example after a change of the layout in `generate_pdf.js`, run:
 
 ```bash
 npm run generate:force
@@ -50,4 +50,4 @@ npm run generate:force
 
 Commit the generated files only when no document has a `[TODO]` left: the script reports each one and exits with an error.
 
-The script regenerates only the documents whose text changed since the last run (it compares the text with the `sourceHash` saved in the JSON) and sets their `Last Updated` date to today. Add `--force` to regenerate every document; dates still change only where the text changed. The PDF styles keep a heading with its text and never split a list item, a table row or a quote between pages.
+The script regenerates only the documents whose text changed since the last run (it compares the text with the `sourceHash` saved in the JSON) and sets the `Last Updated` date of an English document to today; a translation takes the date of its English text. A document whose date line or PDF differs from what its JSON recorded is regenerated too (a run that stopped halfway, a date corrected by hand). Add `--force` to regenerate every document; dates still change only where the text changed. The PDF styles keep a heading with its text and never split a list item, a table row or a quote between pages.
