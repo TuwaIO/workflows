@@ -23,7 +23,7 @@ TUWA is a headless-first, modular Web3 stack for EVM and Solana: state and logic
 | **Quasar**            | Quasar Cloud (`api.tuwa.io`, dashboard `quasar.tuwa.io`) and Community Edition   | Server-side tracking, transaction history on every device, webhooks           | [docs.tuwa.io/quasar](https://docs.tuwa.io/quasar)                 |
 | **Cosmos Playground** | `@tuwaio/create-cosmos-playground` and the templates                             | Starter apps, see [Templates](#9-templates)                                   | [Starter Templates](https://docs.tuwa.io/guides/starter-templates) |
 
-Dependencies point one way: Orbit ← SIWX, Satellite Connect, Pulsar ← Nova UI Kit ← TUWA SDK ← Quasar Client. A package never imports a project above it. Quasar is a service, reached only through `@tuwaio/quasar-sdk` on your server.
+Dependencies point one way: Orbit ← SIWX, Satellite Connect, Pulsar ← Nova UI Kit ← TUWA SDK ← Quasar Client. A package never imports a project above it. Quasar is a service: your server reaches it through `@tuwaio/quasar-sdk`, and the Payments checkout calls its checkout routes from the buyer's browser with the token of one invoice, so a strict `connect-src` must allow its host.
 
 Step-by-step guides (the long form of this file): [Full-Stack React](https://docs.tuwa.io/guides/full-stack-react), [Quasar transaction sync](https://docs.tuwa.io/guides/quasar-transaction-sync), [React transaction tracking](https://docs.tuwa.io/guides/react-transaction-tracking) (packages without the SDK), [Multi-chain authentication](https://docs.tuwa.io/guides/multi-chain-auth-siwx-caip122), [External auth with SIWX JWT](https://docs.tuwa.io/guides/siwx-jwt-external-auth), [Supabase RLS with SIWX](https://docs.tuwa.io/guides/siwx-supabase).
 
@@ -59,6 +59,9 @@ pnpm add @tuwaio/quasar-sdk
 
 # Payments: the checkout and refunds on top of the SDK
 pnpm add @tuwaio/sdk @tuwaio/payments-sdk
+
+# Payments from Solana wallets (`@tuwaio/payments-sdk/solana`), besides the Solana command above
+pnpm add @solana-program/system @solana-program/token
 ```
 
 pnpm (8 and later), npm (7 and later) and Bun also install the Wallet Standard peers of `@tuwaio/solana-sdk` (`@wallet-standard/app`, `base`, `features`, `react`, `ui` and `ui-registry`); with Yarn, add them to the command.
@@ -78,6 +81,8 @@ For wagmi connectors other than `injected`, install their SDKs too: `@wagmi/conn
 | `@tuwaio/solana-sdk/orbit`, `/pulsar`, `/satellite`, `/siwx`, `/nova-connect`                  | The Solana counterparts                                                    |
 | `@tuwaio/quasar-sdk` (server), `@tuwaio/quasar-sdk/react` (browser)                            | The Quasar client, `preFlightTxCheck`                                      |
 | `@tuwaio/payments-sdk` (and `/i18n`, `/evm`, `/solana`, `/checkout`, `/styles.css`)            | `@tuwaio/nova-payments`, and the checkout store of `@tuwaio/quasar-sdk`    |
+
+The checkout needs its own stylesheet: `@tuwaio/sdk/styles/all.css` does not contain it, so import `@tuwaio/payments-sdk/styles.css` after it.
 
 **The packages one by one** (to pin each version): follow the [React transaction tracking guide](https://docs.tuwa.io/guides/react-transaction-tracking) and the installation section of the [Nova Connect README](https://stories.tuwa.io/?path=/docs/packages-nova-connect-overview--docs). Imports then come from the packages themselves (`@tuwaio/pulsar-core`, `@tuwaio/nova-connect/evm`, …); the code is otherwise the same.
 
