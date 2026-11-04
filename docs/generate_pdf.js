@@ -25,8 +25,9 @@ const dateFormatter = (locale) =>
 /*
  * The languages of the documents. English is the original in this directory; a translation lives in a subdirectory
  * named after its language (`uk/terms.md`) and is generated next to it (`uk/terms.pdf`, `uk/terms.json`). Its date
- * line uses the label of its language. Every heading of a translation names the anchor of the English section
- * (`## 5. Облік і оплата {#account-billing}`), so a link to a section works in every language.
+ * line uses the label of its language and states the date of the English text it translates. Every heading of a
+ * translation names the anchor of the English section (`## 5. Облік і оплата {#account-billing}`), so a link to a section
+ * works in every language.
  */
 const LANGUAGES = [
   { code: 'en', dir: '.', label: 'Last Updated', locale: 'en-US' },
@@ -82,7 +83,7 @@ function keepDashesOnLine(html) {
  * The page data of a policy for `@tuwaio/docs-ui`: the title, the date, the sections with their anchors and the body
  * as HTML without the title and the date line (the page shows them itself).
  */
-function toPageData(markdown, hash, language, languages) {
+function toPageData(markdown, hash, language, languages, originalHash) {
   const tokens = marked.lexer(markdown);
   const titleIndex = tokens.findIndex((token) => token.type === 'heading' && token.depth === 1);
   const title = titleIndex >= 0 ? tokens[titleIndex].text : '';
@@ -101,7 +102,9 @@ function toPageData(markdown, hash, language, languages) {
     languages,
     sections,
     html,
-    sourceHash: hash
+    sourceHash: hash,
+    // A translation: the `sourceHash` of the English text it translates
+    originalHash
   };
 }
 
@@ -123,6 +126,12 @@ function updateLastUpdatedDate(markdown, previousHash, hash, language) {
   const lastUpdated = `${language.label}: ${language.format.format(new Date())}`;
 
   return markdown.replace(language.pattern, lastUpdated);
+}
+
+// The date line of a translation: the date of the English text, in its language. Noon UTC is that same day in Kyiv
+function translatedDate(englishMarkdown, language) {
+  const date = englishMarkdown.match(LANGUAGES[0].pattern)?.[1].trim();
+  return `${language.label}: ${language.format.format(new Date(`${date} 12:00 UTC`))}`;
 }
 
 // The anchors of the level-2 sections of a document, in order
@@ -227,6 +236,15 @@ const CSS = `
 `;
 
 async function generate() {
+  // Translations a person compared with the current English text, unchanged because it still says the same
+  const reviewed = (process.argv.find((arg) => arg.startsWith('--reviewed=')) ?? '=').split('=')[1].split(',').filter(Boolean);
+  const unknown = reviewed.filter((name) => !files.some((file) => file.name === name));
+  if (unknown.length) {
+    console.error(`--reviewed names no document: ${unknown.join(', ')}`);
+    process.exitCode = 1;
+    return;
+  }
+
   const browser = await puppeteer.launch({
     headless: "new",
     args: ['--no-sandbox', '--disable-setuid-sandbox']
@@ -263,9 +281,11 @@ async function generate() {
         continue;
       }
 
+      const english = language.code === 'en' ? undefined : fs.readFileSync(path.join(process.cwd(), file.name + '.md'), 'utf8');
+
       // A translation keeps the sections and anchors of the English document
-      if (language.code !== 'en') {
-        const original = sectionAnchors(fs.readFileSync(path.join(process.cwd(), file.name + '.md'), 'utf8'));
+      if (english !== undefined) {
+        const original = sectionAnchors(english);
         const translated = sectionAnchors(originalMarkdown);
         if (original.join(' ') !== translated.join(' ')) {
           console.error(`Not generated: the sections of ${name} (${translated.join(', ')}) differ from ${file.name}.md (${original.join(', ')})`);
@@ -278,18 +298,32 @@ async function generate() {
       const previous = fs.existsSync(jsonPath) ? JSON.parse(fs.readFileSync(jsonPath, 'utf8')) : undefined;
       const previousHash = previous?.sourceHash;
 
-      if (!force && previousHash === hash && fs.existsSync(pdfPath)) {
-        // Same text: only the list of languages may have changed, and the page data says it without a new date
-        if ((previous.languages ?? ['en']).join() !== languages.join()) {
-          fs.writeFileSync(jsonPath, JSON.stringify(toPageData(originalMarkdown, hash, language, languages), null, 2) + '\n', 'utf8');
-          console.log(`Updated the languages of ${path.join(language.dir, file.out + '.json').replace(/^\.\//, '')}`);
+      // A translation follows the current English text once its own text changed or a person reviewed it. Until then it
+      // still states what it translated: the English text changing never makes an old translation look current
+      const follows = previousHash !== hash || reviewed.includes(file.name);
+      const currentOriginal = english === undefined ? undefined : sourceHash(english);
+      const originalHash = follows ? currentOriginal : previous?.originalHash;
+      if (originalHash !== currentOriginal) {
+        console.log(`Behind: ${name} translates an earlier text of ${file.name}.md. Compare them, then update it or run with --reviewed=${file.name}`);
+      }
+
+      const md =
+        english === undefined
+          ? updateLastUpdatedDate(originalMarkdown, previousHash, hash, language)
+          : follows
+            ? originalMarkdown.replace(language.pattern, translatedDate(english, language))
+            : originalMarkdown;
+
+      if (!force && previousHash === hash && md === originalMarkdown && fs.existsSync(pdfPath)) {
+        // Same document: only the list of languages or what it translates may have changed, and the page data says it
+        if ((previous.languages ?? ['en']).join() !== languages.join() || previous.originalHash !== originalHash) {
+          fs.writeFileSync(jsonPath, JSON.stringify(toPageData(originalMarkdown, hash, language, languages, originalHash), null, 2) + '\n', 'utf8');
+          console.log(`Updated the page data of ${path.join(language.dir, file.out + '.json').replace(/^\.\//, '')}`);
         } else {
           console.log(`Unchanged: ${name}`);
         }
         continue;
       }
-
-      const md = updateLastUpdatedDate(originalMarkdown, previousHash, hash, language);
 
       if (md !== originalMarkdown) {
         fs.writeFileSync(markdownPath, md, 'utf8');
@@ -325,7 +359,7 @@ async function generate() {
       });
 
       console.log('Generated ' + path.join(language.dir, file.out + '.pdf').replace(/^\.\//, ''));
-      fs.writeFileSync(jsonPath, JSON.stringify(toPageData(md, hash, language, languages), null, 2) + '\n', 'utf8');
+      fs.writeFileSync(jsonPath, JSON.stringify(toPageData(md, hash, language, languages, originalHash), null, 2) + '\n', 'utf8');
       console.log('Generated ' + path.join(language.dir, file.out + '.json').replace(/^\.\//, ''));
     }
   }

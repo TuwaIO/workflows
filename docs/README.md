@@ -15,7 +15,13 @@ English is the original: `<name>.md` in this directory. A translation lives in a
 
 Every section heading of a translation names the anchor of the English section: `## 5. Облік і оплата {#account-billing}`. A link to a section (`/refund#how-to-request-a-refund`) then works in every language. The script refuses a translation whose sections or anchors differ from the English document. Each page data file lists the languages its document exists in (`"languages": ["en", "uk"]`), and `@tuwaio/docs-ui` shows a language switch from it.
 
-Update a translation together with its English document: a translation that was not updated keeps its older date, and the page shows it.
+Update a translation together with its English document: generated together, it states the date of the English text, and its JSON names that text (`originalHash`, the `sourceHash` of the English JSON). A translation that was not updated keeps its older date and `originalHash`, the page shows that date, the script reports it as `Behind`, and the Quasar dashboard does not offer it for acceptance: English is what the version says there. When the English change does not touch what the translation says, compare them and record that:
+
+```bash
+node generate_pdf.js --reviewed=terms,dpa
+```
+
+Changing the text of a translation also records it as following the current English text, so finish the whole translation before generating.
 
 The website, the docs hub and the Quasar dashboard read these files from `main`, and `@tuwaio/docs-ui` lists every policy (`policies`): a new document needs an entry there too. Footers show a policy once its entry is `published: true`; until then it is listed only on the docs hub (`/policies`, marked "In review").
 
