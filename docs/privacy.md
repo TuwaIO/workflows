@@ -1,5 +1,5 @@
 # Privacy Policy
-Last Updated: October 17, 2026
+Last Updated: November 7, 2026
 
 This Privacy Policy describes how FOP Tkach Oleksandr ("we," "us," or "our") collects, uses, and protects your information when you use the unified TUWA ecosystem, which includes the main site [tuwa.io](https://tuwa.io/), the showcase at [demo.tuwa.io](https://demo.tuwa.io/), the Quasar dashboard at [quasar.tuwa.io](https://quasar.tuwa.io/), the Custom Styles editor at [custom-style.tuwa.io](https://custom-style.tuwa.io/), the documentation at [docs.tuwa.io](https://docs.tuwa.io/) and [stories.tuwa.io](https://stories.tuwa.io/), and our open-source npm packages (Orbit Utils, SIWX, Satellite Connect, Pulsar, Nova UI Kit, the TUWA SDK and the Quasar SDK).
 
@@ -19,7 +19,7 @@ To provide the ecosystem's features, we collect limited, specific data:
 We do not sell your personal data to third parties.
 
 ## 4. API Keys & Infrastructure
-We utilize robust RPC infrastructure to process blockchain requests. Organizations can provide their own provider settings for their apps: custom RPC endpoints, Alchemy or QuickNode keys, and Pimlico or Gelato keys. Quasar Cloud reads the transactions of an organization's apps only through the RPC providers that the organization sets up, and tracks sponsored (ERC-4337) and relayed transactions only with the app's own Pimlico key or bundler URL and its own Gelato key. Any custom RPC endpoints and API keys you provide are encrypted at rest in our database (AES-256-GCM) and decrypted only by the Quasar engine when it calls your provider. When you provide them, the Quasar engine sends that provider the data its request needs, such as a transaction hash or a wallet address, under your own agreement with the provider.
+We utilize robust RPC infrastructure to process blockchain requests. Organizations can provide their own provider settings for their apps: custom RPC endpoints, Alchemy or QuickNode keys, and Pimlico keys. Quasar Cloud reads the transactions of an organization's apps only through the RPC providers that the organization sets up, and tracks sponsored (ERC-4337) transactions only with the app's own Pimlico key or bundler URL. Any custom RPC endpoints and API keys you provide are encrypted at rest in our database (AES-256-GCM) and decrypted only by the Quasar engine when it calls your provider. When you provide them, the Quasar engine sends that provider the data its request needs, such as a transaction hash or a wallet address, under your own agreement with the provider.
 
 ## 5. Data Storage and Protection
 Most Web3 operations occur locally on your client device using Local Storage (for example, by Pulsar and Satellite Connect). Any data transmitted to Quasar Cloud is protected using industry-standard security measures, including transport layer security (TLS) and access controls that scope every record to its organization.
@@ -71,7 +71,7 @@ For personal data within the scope of applicable data-protection law, this secti
 - Alchemy: blockchain reads of the Quasar dashboard, such as the ENS name of the wallet you connect.
 - UptimeRobot (UptimeRobot s.r.o., Slovakia): monitoring the availability of our sites and services from its own servers. It receives no data about you: our status page at [tuwa.io/status](https://tuwa.io/status) reads its results on the tuwa.io server, and your browser does not contact UptimeRobot.
 
-Providers that an organization sets up for its apps, such as its own RPC endpoint or its Alchemy, QuickNode, Pimlico or Gelato key, receive data on that organization's instruction and under its own agreement with them (Section 4). We may also disclose data where the law requires it.
+Providers that an organization sets up for its apps, such as its own RPC endpoint or its Alchemy, QuickNode or Pimlico key, receive data on that organization's instruction and under its own agreement with them (Section 4). We may also disclose data where the law requires it.
 
 **International transfers.** We are established in Ukraine and collect your data directly from you. The Quasar Cloud servers are in the Netherlands. Several providers above are established or process data in the United States or in other countries outside the European Economic Area. Where the GDPR requires a safeguard for such a transfer, these are the safeguards in the providers' terms:
 - Cloudflare, Vercel, Resend and Sentry: their certification under the EU-U.S. Data Privacy Framework.

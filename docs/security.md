@@ -1,5 +1,5 @@
 # Security Policy
-Last Updated: October 16, 2026
+Last Updated: November 7, 2026
 
 This Security Policy explains how to report a security vulnerability in the TUWA ecosystem, what you can expect from FOP Tkach Oleksandr ("we," "us," or "our") when you do, and who is responsible for what. It covers our open-source npm packages, Quasar Cloud, Quasar Community Edition and Quasar Payments. We welcome reports from security researchers and users, and we will not take legal action against research done in good faith under this policy (Section 5).
 
@@ -18,7 +18,7 @@ Examples that are always in scope: access to another organization's apps, transa
 
 **Out of scope:**
 - Quasar Community Edition installations run by others: please report to their operator (a vulnerability in the code of Community Edition itself is in scope).
-- Third-party services, including wallets, RPC providers, WalletConnect, GoPlus, Chainalysis, Pimlico and other paymasters, Gelato and Resend. Please report to them directly.
+- Third-party services, including wallets, RPC providers, WalletConnect, GoPlus, Chainalysis, Pimlico and other paymasters, and Resend. Please report to them directly.
 - The content of sanctions lists, such as the OFAC list.
 - Reports without a demonstrated impact, such as missing security headers, version banners or the absence of rate limits on non-sensitive pages.
 - Social engineering and physical access.
