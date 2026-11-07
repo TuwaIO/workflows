@@ -3,7 +3,7 @@
 > Context for AI coding agents that build apps with TUWA. Copy this file into the `AGENTS.md` (or `CLAUDE.md`, `.cursorrules`) of your app, or point the agent to its raw URL: `https://raw.githubusercontent.com/TuwaIO/workflows/main/TUWA_AGENTS.md`.
 > The maintainers of the TUWA packages follow the `AGENTS.md` of each repository instead.
 
-Every code block below compiles against the current releases (`@tuwaio/sdk` 0.6, `@tuwaio/quasar-sdk` 0.7, Nova UI Kit 0.10, `@tuwaio/pulsar-core` 0.11, `@tuwaio/satellite-core` 0.11, `@tuwaio/siwx-core` 0.7, `@tuwaio/orbit-core` 0.6). When the docs and this file disagree, the docs win.
+Every code block below compiles against the current releases (`@tuwaio/sdk` 0.7, `@tuwaio/quasar-sdk` 0.8, Nova UI Kit 0.13, `@tuwaio/pulsar-core` 0.12, `@tuwaio/satellite-core` 0.12, `@tuwaio/siwx-core` 0.7, `@tuwaio/orbit-core` 0.6). When the docs and this file disagree, the docs win.
 
 ---
 
@@ -57,7 +57,7 @@ pnpm add @tuwaio/sdk @tuwaio/solana-sdk @solana/kit
 # Quasar sync (server)
 pnpm add @tuwaio/quasar-sdk
 
-# Payments: the checkout and refunds on top of the SDK
+# Payments (docs only, not live in production yet): the checkout and refunds on top of the SDK
 pnpm add @tuwaio/sdk @tuwaio/payments-sdk
 
 # Payments from Solana wallets (`@tuwaio/payments-sdk/solana`), besides the Solana command above
@@ -80,6 +80,7 @@ For wagmi connectors other than `injected`, install their SDKs too: `@wagmi/conn
 | `@tuwaio/evm-sdk/orbit`, `/pulsar`, `/satellite`, `/siwx`, `/nova-connect`                     | `orbit-evm`, `pulsar-evm`, `satellite-evm`, `siwx-evm`, `nova-connect/evm` |
 | `@tuwaio/solana-sdk/orbit`, `/pulsar`, `/satellite`, `/siwx`, `/nova-connect`                  | The Solana counterparts                                                    |
 | `@tuwaio/quasar-sdk` (server), `@tuwaio/quasar-sdk/react` (browser)                            | The Quasar client, `preFlightTxCheck`                                      |
+| `@tuwaio/quasar-sdk/pulsar` (browser or server)                                                | `TransactionStatus`, `TransactionTracker`, `watchBatchHashes`              |
 | `@tuwaio/payments-sdk` (and `/i18n`, `/evm`, `/solana`, `/checkout`, `/styles.css`)            | `@tuwaio/nova-payments`, and the checkout store of `@tuwaio/quasar-sdk`    |
 
 The checkout needs its own stylesheet: `@tuwaio/sdk/styles/all.css` does not contain it, so import `@tuwaio/payments-sdk/styles.css` after it.
@@ -436,7 +437,6 @@ export function SolanaTxButton({ instruction }: { instruction: Instruction }) {
         type: TxType.increment,
         adapter: OrbitAdapter.SOLANA,
         desiredChainID: cluster,
-        rpcUrl: connection.rpcURL, // saved with the transaction: tracking resumes on the same RPC after a reload
         title: ['Incrementing', 'Incremented', 'Increment failed', 'Increment replaced'],
         description: 'Increment the counter by 1.',
         payload: { value: 1 },
@@ -865,7 +865,7 @@ npx @tuwaio/create-cosmos-playground
 | `nextjs-evm`          | Next.js, SDK         | EVM only, with SIWX sign-in                                                                       |
 | `nextjs-solana`       | Next.js, SDK         | Solana only, with SIWX sign-in and a Codama program                                               |
 | `vite-tuwa`           | Vite, SDK            | `nextjs-tuwa` as a client-side app                                                                |
-| `nextjs-tuwa-not-sdk` | Next.js, packages    | `nextjs-tuwa` on the packages one by one, plus the deprecated Gelato relay                        |
+| `nextjs-tuwa-not-sdk` | Next.js, packages    | `nextjs-tuwa` on the packages one by one                                                         |
 | `custom-style`        | Vite, SDK            | EVM only, with every Nova component restyled                                                      |
 | `nextjs-tuwa-quasar`  | Next.js, SDK, Quasar | Full stack: SIWX, Quasar sync and history, webhooks                                               |
 
