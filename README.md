@@ -18,7 +18,7 @@ The shared CI/CD workflows, community guidelines, legal documents and brand asse
 * **`EMAIL_ROUTING.md`**: the official `@tuwa.io` contact addresses and where each one is used.
 * **`Donation.md`**: how to support TUWA with a crypto donation.
 * **`docs/`**: the Privacy Policy, Terms of Service and Cookie Policy, with the script that renders them to PDF.
-* **`preview/`**: logos, preview images and the posts used across the TUWA sites and social accounts.
+* **`preview/`**: the preview video and GIF of this page, the banner, the logo the policy PDFs embed, and the posts of the TUWA social accounts. The logo, the icons and the previews of the projects live on the website, at `https://tuwa.io/brand/`.
 
 ---
 
