@@ -1,5 +1,5 @@
 # Privacy Policy
-Last Updated: November 7, 2026
+Last Updated: November 10, 2026
 
 This Privacy Policy describes how FOP Tkach Oleksandr ("we," "us," or "our") collects, uses, and protects your information when you use the unified TUWA ecosystem, which includes the main site [tuwa.io](https://tuwa.io/), the showcase at [demo.tuwa.io](https://demo.tuwa.io/), the Quasar dashboard at [quasar.tuwa.io](https://quasar.tuwa.io/), the Custom Styles editor at [custom-style.tuwa.io](https://custom-style.tuwa.io/), the documentation at [docs.tuwa.io](https://docs.tuwa.io/) and [stories.tuwa.io](https://stories.tuwa.io/), and our open-source npm packages (Orbit Utils, SIWX, Satellite Connect, Pulsar, Nova UI Kit, the TUWA SDK and the Quasar SDK).
 
@@ -43,7 +43,7 @@ For personal data within the scope of applicable data-protection law, this secti
 | Providing Quasar Cloud to your organization: apps, API keys, webhook endpoints, usage and quota | Names and settings of your organization and apps, usage records, the members of the organization and their roles | Performance of our contract where you are the party to it (for example, as a sole proprietor); otherwise our legitimate interest, and your organization's, in providing and using the service your organization signed up for |
 | Operational emails: verification, security notices, quota notices | Email address | Performance of our contract with you |
 | Recording agreements: who accepted the Terms of Service and the Data Processing Addendum, or signed the standard contractual clauses, for which organization and with what authority, which versions and when; the emails that told the owners of an organization about a new version of a document | Name and email address of the person, their role in the organization; the details of the organization as given, including the name, position and email address of its contact person; the confirmations as shown, the versions and the time; for the standard contractual clauses, also the answers about the organization's data flow, the package both parties signed and the evidence copy that records the signatures; where the organization's flow matches the standard flow profile of our transfer assessment, the record of the match (the conditions it meets, the versions of the documents and the time) and what our system checked for the package before we signed it through our standing offer; for each notice, the owner's email address and when it was sent; where the organization processes the data for a controller, the email address it gives for that controller's notices of changes of the Data Processing Addendum that concern it, the copies we send there and whether they were delivered. We do not record IP addresses | Performance of our contract with the account holder or the organization; for a person who accepts or signs on behalf of an organization and for its contact person, our legitimate interest, and the organization's, in proving who concluded the agreement, with what authority and on what terms, and that the owners were told about a new version |
-| Error monitoring of the Quasar dashboard and engine | Technical error details; we turn off the collection of cookies, request identity headers and account data | Our legitimate interest in reliable services |
+| Finding and fixing errors of the Quasar dashboard and engine | Technical error details in the logs of our own servers, including errors that the pages of the Quasar dashboard report from your browser: the error and where it happened, and the path of the page without its query; email addresses, wallet addresses, IP addresses and keys are removed before an error is written | Our legitimate interest in reliable services |
 | Answering requests and legal claims | Your messages and the data needed to answer them | Our legitimate interests and legal obligations |
 
 **Our role for your apps.** When an organization syncs its users' transactions to Quasar Cloud, that organization decides what is processed and is the controller of that data. We process it on the organization's behalf under our [Data Processing Addendum](https://tuwa.io/dpa). Its users should contact the organization first; we will help it answer.
@@ -57,7 +57,6 @@ For personal data within the scope of applicable data-protection law, this secti
 - Transactions and webhook endpoints: while the app that sent them exists; they are deleted together with the app or its organization.
 - Webhook delivery logs: up to 3 months, and together with the app or its organization if that is earlier. Where the organization's clauses rest on the standard flow profile, they keep only the status of each response, not its content.
 - Our standing offer for the standard flow profile: the record of it holds the name and email address of our signatory, the time, the versions of the documents and the conditions of the offer. It is kept while any clauses signed through it are kept, and 3 years after the last of them is deleted, as evidence for all of them; deleting one organization does not delete it.
-- Error reports: up to 90 days.
 - Server logs: the log of our reverse proxy records each request without your IP address and is deleted after 7 days. The logs of our services record their events and errors, including the identifiers of the transactions they process and, for a request refused to an app that accepts only listed IP addresses, the IP address it came from; our log system keeps them for 7 days, and each server keeps only the latest 30 MB of each service's log, which newer entries replace.
 - IP addresses used to limit requests and sign-in attempts: up to 5 minutes.
 - Backups: deleted data can remain in our encrypted database backups for up to 8 days.
@@ -67,14 +66,13 @@ For personal data within the scope of applicable data-protection law, this secti
 - Cloudflare: network, security and DNS for every site; storage of backups and files (R2).
 - Vercel: hosting of tuwa.io, the documentation sites, demo.tuwa.io, custom-style.tuwa.io and stories.tuwa.io.
 - Resend: delivery of emails.
-- Sentry (Functional Software): error monitoring of the Quasar dashboard and engine.
 - Alchemy: blockchain reads of the Quasar dashboard, such as the ENS name of the wallet you connect.
 - UptimeRobot (UptimeRobot s.r.o., Slovakia): monitoring the availability of our sites and services from its own servers. It receives no data about you: our status page at [tuwa.io/status](https://tuwa.io/status) reads its results on the tuwa.io server, and your browser does not contact UptimeRobot.
 
 Providers that an organization sets up for its apps, such as its own RPC endpoint or its Alchemy, QuickNode or Pimlico key, receive data on that organization's instruction and under its own agreement with them (Section 4). We may also disclose data where the law requires it.
 
 **International transfers.** We are established in Ukraine and collect your data directly from you. The Quasar Cloud servers are in the Netherlands. Several providers above are established or process data in the United States or in other countries outside the European Economic Area. Where the GDPR requires a safeguard for such a transfer, these are the safeguards in the providers' terms:
-- Cloudflare, Vercel, Resend and Sentry: their certification under the EU-U.S. Data Privacy Framework.
+- Cloudflare, Vercel and Resend: their certification under the EU-U.S. Data Privacy Framework.
 - HostHatch: the standard contractual clauses in its data processing addendum, for any access to our servers from outside the European Economic Area.
 - Alchemy: the standard contractual clauses in its data processing addendum.
 

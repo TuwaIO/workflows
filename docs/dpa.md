@@ -1,5 +1,5 @@
 # Data Processing Addendum
-Last Updated: November 7, 2026
+Last Updated: November 10, 2026
 
 This Data Processing Addendum ("DPA") forms part of the [Terms of Service](https://tuwa.io/terms) between FOP Tkach Oleksandr ("TUWA," "we," "us," or "our") and the organization that uses Quasar Cloud ("Customer"). It applies to personal data that we process on the Customer's behalf when we provide Quasar Cloud ("Customer Personal Data").
 
@@ -81,7 +81,7 @@ This DPA applies for as long as we process Customer Personal Data.
 - **Access control.** Every record is scoped to its organization. Organizations have owner, admin and member roles. Accounts can use two-factor authentication and passkeys. Access to the servers is limited to the people who operate Quasar Cloud.
 - **Our access to Customer Personal Data.** We read it in the Quasar admin panel, which records each view (who, which records, when) and keeps the record for 1 year. A view that cannot be recorded is refused. There is no web tool for the database: it is reached only over SSH with the keys of the operator, for deployments and migrations, backups and restores, incidents and work the admin panel cannot do. Every hour an automated check copies the views in the admin panel, the SSH sign-ins of the servers and the requests to the admin panel in the log of our reverse proxy, which keeps each request (time, path and status, not the data) for 7 days, into the review of the week, and alerts us at once to a sign-in or a view it does not expect. Every week we review them and record the reason of each SSH session and the data read; the reviews are kept for 3 years.
 - **Webhooks and outbound requests.** Webhooks are signed (HMAC-SHA256). Webhook delivery and the Customer's RPC endpoints are protected against server-side request forgery. The API has rate limits.
-- **Monitoring.** Services are monitored with alerts. Error monitoring excludes cookies, request identity headers and account data. Deleted organizations and their removed members are recorded.
+- **Monitoring.** Services are monitored with alerts. Errors are written to the logs of our own servers without email addresses, wallet addresses, IP addresses, keys, cookies, request identity headers or account data. Deleted organizations and their removed members are recorded.
 - **Development and release.** Dependencies are updated regularly. Release images are scanned for vulnerabilities, signed (cosign) and published with a software bill of materials; a rollback deploys only images whose signature is verified. Operations follow written runbooks, including for incidents and restoring backups.
 
 ## Annex C. Sub-processors
@@ -91,7 +91,6 @@ Providers that the Customer sets up for its apps are not sub-processors (Section
 | :--- | :--- | :--- | :--- | :--- |
 | HostHatch, LLC | Servers of Quasar Cloud | All Customer Personal Data, stored on our servers | The Netherlands (Amsterdam) | None needed for storage in the European Economic Area; the standard contractual clauses in HostHatch's data processing addendum cover any access from outside it |
 | Cloudflare, Inc. | Network and security; storage of encrypted backups (R2) | Data passing through its network; encrypted backups | Global network | EU-U.S. Data Privacy Framework, with the standard contractual clauses of Cloudflare's data processing addendum as a fallback |
-| Functional Software, Inc. (Sentry) | Error monitoring | Technical error details, which can include a transaction hash or a wallet address | United States | EU-U.S. Data Privacy Framework |
 
 ## Annex D. Description of the Transfer (Annex I.B of the Clauses)
 

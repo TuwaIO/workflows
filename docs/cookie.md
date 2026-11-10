@@ -1,5 +1,5 @@
 # Cookie Policy
-Last Updated: October 27, 2026
+Last Updated: November 10, 2026
 
 This Cookie Policy explains how the TUWA ecosystem—including [tuwa.io](https://tuwa.io/), [demo.tuwa.io](https://demo.tuwa.io/), [custom-style.tuwa.io](https://custom-style.tuwa.io/), the documentation sites and the [Quasar dashboard](https://quasar.tuwa.io)—uses cookies, Local Storage and similar browser storage to provide you with a secure, multi-chain Web3 experience.
 
@@ -48,7 +48,8 @@ This list was checked against our sites and code. It covers the storage that our
 | `orbit-core:lastConnectedConnector`, `orbit-core:recentlyConnectedConnectorsListHelpers` | Session Storage; Local Storage if you tick "Remember this wallet" | Sites where you can connect a wallet | When you connect a wallet | Reconnects the wallet you connected last and lists the wallets you used (Satellite Connect) | Until you close the tab; with "Remember this wallet", until you disconnect or clear it |
 | `siwx-react:session` | Local Storage | Sites where you sign in with a wallet, including the simulated sign-in of the docs.tuwa.io Playground | When you sign in with a wallet | Lets the page show that you are signed in: the wallet address and network, the site, and when the sign-in started and expires | Until you sign out or sign in again, or until the sign-in expires: an expired one is removed the next time a page of the site loads |
 | `satellite-connect:impersonatedAddress` | Local Storage | Sites that offer the read-only Impersonate mode (stories.tuwa.io, custom-style.tuwa.io) | When you enter an address in Impersonate mode and connect | Keeps the address you chose to view in read-only mode; no wallet is connected | Until you disconnect or clear it |
-| Pulsar transaction store | Local Storage | Sites where you send a tracked transaction | When you send a transaction | Keeps the state of the transactions you sent (Pulsar), so the site can finish tracking a pending one and show you their status | A finished transaction for 30 days after it finished, a pending one until it finishes; at most your last 50 |
+| Pulsar transaction store (`quasar-dashboard-transactions` and `quasar-pay-transactions` in Quasar) | Local Storage | Sites where you send a tracked transaction, and the payment pages of Quasar | When you send a transaction; on a payment page, also when Quasar records a payment you made by QR code | Keeps the state of the transactions you sent (Pulsar), so the site can finish tracking a pending one and show you their status | A finished transaction for 30 days after it finished, a pending one until it finishes; at most your last 50 |
+| `<name of the Pulsar transaction store>:removedTxKeys` | Local Storage | Sites where you send a tracked transaction, and the payment pages of Quasar | When you stop tracking a transaction | Remembers the transactions you stopped tracking, so they do not come back | Until you clear it; at most the last 50 |
 | `tuwa-storybook-theme` | Session Storage | stories.tuwa.io | When you switch the theme | Remembers the light or dark theme you chose | Until you close the tab |
 
 Our sites are served through Cloudflare. In our current configuration, Cloudflare sets no cookies on them; if we turn on a Cloudflare protection that uses a cookie, we will add it to this list first.
