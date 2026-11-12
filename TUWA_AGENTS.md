@@ -736,7 +736,7 @@ On `localhost`, register an endpoint with a `localhost` URL and relay its delive
 | `--tuwa-rounded-corners`, `--tuwa-ring-width`                                                       | Corner radius (4px), focus ring width (2px) |
 | `--tuwa-testnet-icons`                                                                              | Tint of testnet chain icons                 |
 
-**Customization.** Every Nova component takes a `customization` prop: `classNames` functions replace the default classes of each part, `components` replace parts, `childCustomizations` reach nested components. The full reference is the [Theming page](https://stories.tuwa.io/?path=/docs/theming--docs); the `custom-style` template restyles every modal.
+**Customization.** Every Nova component takes a `customization` prop: `classNames` functions replace the default classes of each part, `components` replace parts, `childCustomizations` reach nested components. The full reference is the [Theming page](https://stories.tuwa.io/?path=/docs/theming--docs).
 
 ```ts
 // src/styles/connectButton.ts
@@ -866,7 +866,6 @@ npx @tuwaio/create-cosmos-playground
 | `nextjs-solana`       | Next.js, SDK         | Solana only, with SIWX sign-in and a Codama program                                               |
 | `vite-tuwa`           | Vite, SDK            | `nextjs-tuwa` as a client-side app                                                                |
 | `nextjs-tuwa-not-sdk` | Next.js, packages    | `nextjs-tuwa` on the packages one by one                                                         |
-| `custom-style`        | Vite, SDK            | EVM only, with every Nova component restyled                                                      |
 | `nextjs-tuwa-quasar`  | Next.js, SDK, Quasar | Full stack: SIWX, Quasar sync and history, webhooks                                               |
 
 Source: [cosmos-playground/examples](https://github.com/TuwaIO/cosmos-playground/tree/main/examples).
