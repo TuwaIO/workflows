@@ -1,5 +1,5 @@
 # Security Policy
-Last Updated: November 7, 2026
+Last Updated: November 15, 2026
 
 This Security Policy explains how to report a security vulnerability in the TUWA ecosystem, what you can expect from FOP Tkach Oleksandr ("we," "us," or "our") when you do, and who is responsible for what. It covers our open-source npm packages, Quasar Cloud, Quasar Community Edition and Quasar Payments. We welcome reports from security researchers and users, and we will not take legal action against research done in good faith under this policy (Section 5).
 
@@ -12,9 +12,9 @@ This Security Policy explains how to report a security vulnerability in the TUWA
 - The latest published versions of our npm packages (`@tuwaio/*`).
 - Quasar Cloud: [api.tuwa.io](https://api.tuwa.io/) and the dashboard at [quasar.tuwa.io](https://quasar.tuwa.io/).
 - The code of Quasar Community Edition, latest minor version.
-- Quasar Payments, from its release: the payment engine, the checkout API and checkout tokens, the hosted payment page (`/pay`), the EIP-3009 relayer, the ERC-7677 paymaster proxy, the ERC-7715 auto-charge collector, `payments.v1` webhooks and `verifyWebhook`, the payment ledger and issued documents, `@tuwaio/nova-payments` and `@tuwaio/quasar-sdk/checkout`.
+- Quasar Payments, from its release: the payment engine, the checkout API and checkout tokens, the hosted payment page (`/pay`), the ERC-7677 paymaster proxy, `payments.v1` webhooks and `verifyWebhook`, the payment ledger and issued documents, `@tuwaio/nova-payments` and `@tuwaio/quasar-sdk/checkout`.
 
-Examples that are always in scope: access to another organization's apps, transactions or keys; a forged or replayed webhook signature; a package that exposes a key or signs something the user did not confirm. From the release of Quasar Payments, also: a payment counted for another invoice or from another payer; a changed amount, asset, network or recipient of a quote; a bypass of AML screening; access to another person's invoice through its token or by guessing; a change to the ledger or a document that the hash-chain check does not detect; a charge above the limit or outside the period of a wallet permission; a relayer or paymaster that pays gas for someone else's calls.
+Examples that are always in scope: access to another organization's apps, transactions or keys; a forged or replayed webhook signature; a package that exposes a key or signs something the user did not confirm. From the release of Quasar Payments, also: a payment counted for another invoice or from another payer; a changed amount, asset, network or recipient of a quote; a bypass of AML screening; access to another person's invoice through its token or by guessing; a change to the ledger or a document that the hash-chain check does not detect; a paymaster that pays gas for someone else's calls.
 
 **Out of scope:**
 - Quasar Community Edition installations run by others: please report to their operator (a vulnerability in the code of Community Edition itself is in scope).
@@ -61,7 +61,7 @@ This policy does not promise rewards, and we do not run a bug bounty program. If
 TUWA is non-custodial: we never hold your private keys or funds, and we cannot reverse a transaction on a blockchain.
 
 ## 9. What We Do to Stay Secure
-We keep dependencies up to date, publish npm releases with provenance, require two-factor authentication and least-privilege access in our organization, encrypt stored secrets, keep an append-only, hash-chained ledger for Quasar Payments, monitor our services and show their status at [tuwa.io/status](https://tuwa.io/status), and follow an incident response plan. This describes our practices; it is not a guarantee.
+We keep dependencies up to date, publish npm releases with provenance, require two-factor authentication and least-privilege access in our organization, encrypt stored secrets, keep a hash-chained ledger for Quasar Payments, monitor our services and show their status at [tuwa.io/status](https://tuwa.io/status), and follow an incident response plan. This describes our practices; it is not a guarantee.
 
 ## 10. Incident Notifications
 If a security incident affects Quasar Cloud customers, we notify them without undue delay. If personal data is breached, we notify the supervisory authority and the affected people as data protection law requires. Under the GDPR, where authority notification is required, it must be made without undue delay and, where feasible, within 72 hours after becoming aware of the breach; communication to individuals is required without undue delay where the breach is likely to result in a high risk to their rights and freedoms, subject to statutory exceptions (Regulation (EU) 2016/679, Articles 33 and 34). Outages are shown at [tuwa.io/status](https://tuwa.io/status).
