@@ -36,10 +36,12 @@ jobs:
       - name: Setup PNPM
         uses: pnpm/action-setup@v4
 
+      # semantic-release 26 refuses to run on Node older than 26.13. Only this release job runs on Node 26: the
+      # repositories' own CI still builds and tests on Node 24.
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: 26
           cache: 'pnpm'
           registry-url: 'https://registry.npmjs.org'
 
